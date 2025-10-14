@@ -1,0 +1,24 @@
+{
+  "name": "dblint",
+  "version": "0.1.0",
+  "description": "A simple database linter.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yusufshakeel/dblint.git"
+  },
+  "keywords": [
+    "database",
+    "linter",
+    "postgresql"
+  ],
+  "author": "Yusuf Shakeel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yusufshakeel/dblint/issues"
+  },
+  "homepage": "https://github.com/yusufshakeel/dblint#readme"
+}
