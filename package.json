@@ -9,12 +9,19 @@
     "dist"
   ],
   "engines": {
-    "node": ">=22.0.0",
-    "npm": ">=10.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "build": "tsdown",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "bootstrap": "mkdir -p output report",
+    "all": "npm audit && rm -rf dist && npm run precommit && npm run build",
+    "test": "jest -c jest.config.json",
+    "precommit": "npm run bootstrap && npm run lint && npm run test",
+    "lint": "npm run lint:src && npm run lint:test",
+    "lint:src": "npx eslint -c eslint.config.mjs src",
+    "lint:fix:src": "npx eslint --fix -c eslint.config.mjs src",
+    "lint:test": "npx eslint -c eslint.config.mjs tests",
+    "lint:fix:test": "npx eslint --fix -c eslint.config.mjs tests"
   },
   "repository": {
     "type": "git",
@@ -32,7 +39,17 @@
   },
   "homepage": "https://github.com/yusufshakeel/dblint#readme",
   "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@types/jest": "^30.0.0",
+    "eslint": "^9.37.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jest": "^29.0.1",
+    "jest": "^30.2.0",
+    "prettier": "^3.6.2",
+    "ts-jest": "^29.4.5",
+    "ts-node": "^10.9.2",
     "tsdown": "^0.15.7",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.1"
   }
 }
