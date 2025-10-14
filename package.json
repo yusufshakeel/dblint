@@ -2,8 +2,18 @@
   "name": "dblint",
   "version": "0.1.0",
   "description": "A simple database linter.",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
+    "build": "tsdown",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,5 +30,9 @@
   "bugs": {
     "url": "https://github.com/yusufshakeel/dblint/issues"
   },
-  "homepage": "https://github.com/yusufshakeel/dblint#readme"
+  "homepage": "https://github.com/yusufshakeel/dblint#readme",
+  "devDependencies": {
+    "tsdown": "^0.15.7",
+    "typescript": "^5.9.3"
+  }
 }
