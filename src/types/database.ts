@@ -9,4 +9,58 @@ export type DatabaseConfig = {
     dbHost: string;
     dbPort: number;
     dbType: DatabaseType;
+};
+
+export type Column = {
+    name: string;
+    dataType: string;
+    nullable: boolean;
+    predicate: string | null;
+    defaultValue: string | null;
+    partOf: string[];
+};
+
+export enum ConstraintType {
+    PRIMARY_KEY = 'PRIMARY KEY',
+    UNIQUE = 'UNIQUE',
+    EXCLUDE = 'EXCLUDE',
+    CHECK = 'CHECK',
 }
+
+export type Constraint = {
+    name: string;
+    type: ConstraintType;
+    columns: string[];
+    predicate: string | null;
+};
+
+export type ForeignKey = {
+    name: string;
+    columns: string[];
+    referencedTable: string;
+    referencedColumns: string[];
+    onUpdateAction: string;
+    onDeleteAction: string;
+};
+
+export type Index = {
+    name: string;
+    type: string;
+    columns: string[];
+    predicate: string | null;
+    isUnique: boolean;
+    isPrimary: boolean;
+    isPartial: boolean;
+}
+
+export type Table = {
+    name: string;
+    columns: Column[];
+    constraints: Constraint[];
+    foreignKeys: ForeignKey[];
+    indexes: Index[];
+};
+
+export type Schema = {
+    tables: Table[];
+};
