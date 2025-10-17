@@ -4,10 +4,15 @@ import tseslint from "typescript-eslint";
 export default [
     {
         ignores: [
+            "coverage/**",
+            "data/**",
+            "db/**",
             "dist/**",
             "node_modules/**",
-            "coverage/**",
+            "output/**",
+            "reports/**",
             "*.config.{js,cjs,mjs,ts}",
+            "knexfile.js",
         ],
     },
 
