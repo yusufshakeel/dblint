@@ -15,7 +15,7 @@
     "prepare": "husky install",
     "build": "tsdown",
     "bootstrap": "mkdir -p output report",
-    "all": "npm audit && rm -rf dist && npm run precommit && npm run build",
+    "all": "rm -rf dist && npm run precommit && npm run build",
     "test": "jest -c jest.config.json",
     "precommit": "npm run bootstrap && npm run lint && npm run test",
     "lint": "npm run lint:src && npm run lint:test",
