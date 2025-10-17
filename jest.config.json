@@ -19,6 +19,7 @@
   "collectCoverageFrom": [
     "src/**/*.{ts,tsx}",
     "!src/index.ts",
+    "!src/configs/index.ts",
     "!tsdown.config.ts",
     "!**/coverage/**",
     "!**/dist/**",
