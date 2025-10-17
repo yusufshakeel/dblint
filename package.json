@@ -8,10 +8,15 @@
   "files": [
     "dist"
   ],
+  "type": "module",
+  "bin": {
+    "dblint": "./dist/index.js"
+  },
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
+    "dblint": "ts-node src/index.ts",
     "prepare": "husky install",
     "build": "tsdown",
     "bootstrap": "mkdir -p output report",
