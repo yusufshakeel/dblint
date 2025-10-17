@@ -21,7 +21,9 @@
     "lint:src": "npx eslint -c eslint.config.mjs src",
     "lint:fix:src": "npx eslint --fix -c eslint.config.mjs src",
     "lint:test": "npx eslint -c eslint.config.mjs tests",
-    "lint:fix:test": "npx eslint --fix -c eslint.config.mjs tests"
+    "lint:fix:test": "npx eslint --fix -c eslint.config.mjs tests",
+    "db:postgres:migrate": "knex migrate:latest",
+    "db:postgres:rollback": "knex migrate:rollback --all"
   },
   "repository": {
     "type": "git",
@@ -38,6 +40,10 @@
     "url": "https://github.com/yusufshakeel/dblint/issues"
   },
   "homepage": "https://github.com/yusufshakeel/dblint#readme",
+  "dependencies": {
+    "knex": "^3.1.0",
+    "pg": "^8.16.3"
+  },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
     "@types/jest": "^30.0.0",
