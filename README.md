@@ -2,7 +2,7 @@
 A simple database linter.
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/yusufshakeel/dblint)
-[![npm version](https://img.shields.io/badge/npm-0.1.1-blue.svg)](https://www.npmjs.com/package/dblint)
+[![npm version](https://img.shields.io/npm/v/dblint.svg)](https://www.npmjs.com/package/dblint)
 [![npm Downloads](https://img.shields.io/npm/dm/dblint.svg)](https://www.npmjs.com/package/dblint)
 
 # Supported Databases
