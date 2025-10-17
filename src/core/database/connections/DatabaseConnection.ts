@@ -5,3 +5,5 @@ export interface DatabaseConnection {
     getConnection: (config: DatabaseConfig) => Promise<Knex>;
     closeConnection: (instance: Knex) => Promise<void>;
 }
+
+export type DatabaseInstance = Knex;
