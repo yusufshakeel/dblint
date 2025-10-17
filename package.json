@@ -8,7 +8,6 @@
   "files": [
     "dist"
   ],
-  "type": "module",
   "bin": {
     "dblint": "./dist/index.js"
   },
