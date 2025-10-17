@@ -1,8 +1,8 @@
-const host = process.env.DATABASE_HOST || 'localhost';
-const database = process.env.DATABASE_NAME || 'testdb';
-const user = process.env.DATABASE_USER || 'username';
-const password = process.env.DATABASE_PASSWORD || 'password';
-const port = process.env.DATABASE_PORT || 5432;
+const host = process.env.DATABASE_HOST;
+const database = process.env.DATABASE_NAME;
+const user = process.env.DATABASE_USER;
+const password = process.env.DATABASE_PASSWORD;
+const port = process.env.DATABASE_PORT;
 
 console.log('[postgres config] Using database configuration:', {
     host,
