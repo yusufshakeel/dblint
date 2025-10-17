@@ -6,7 +6,7 @@ services:
     container_name: dblint-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: testdb
+      POSTGRES_DB: dblint_test_db
       POSTGRES_USER: username
       POSTGRES_PASSWORD: password
     ports:
