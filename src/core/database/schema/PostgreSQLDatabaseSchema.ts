@@ -13,7 +13,7 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
 
   async getTableNames(): Promise<string[]> {
     const sql = `
-        SELECT table_name
+        SELECT table_name as "tableName"
         FROM information_schema.tables
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
           AND table_type = 'BASE TABLE'
@@ -21,7 +21,7 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
     `;
     const { rows } = await this.dbInstance.raw(sql);
     return rows
-      .map((r: any) => r.table_name as string)
+      .map((r: any) => r.tableName as string)
       .filter((name: string) => !Configs.ignoreTables.includes(name));
   }
 
@@ -341,6 +341,26 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
     }));
   }
 
+  getEnrichedColumns(
+    columns: Column[],
+    constraintsAndIndexes: { type: string, columns: string[] }[]
+  ): Column[] {
+    const columnNamesAndPartOfMap: Record<string, Set<string>> = {};
+    constraintsAndIndexes.forEach((ci: {type: string, columns: string[]}) => {
+      ci.columns.forEach(columnName => {
+        if (columnNamesAndPartOfMap[columnName]) {
+          columnNamesAndPartOfMap[columnName].add(ci.type);
+        } else {
+          columnNamesAndPartOfMap[columnName] = new Set([ci.type]);
+        }
+      });
+    });
+    return columns.map(column => {
+      column.partOf = Array.from(columnNamesAndPartOfMap[column.name] || []);
+      return column;
+    });
+  }
+
   async getSchema(): Promise<Schema> {
     const tableNames = await this.getTableNames();
     const columnsOfAllTables = await Promise.all(
@@ -361,20 +381,10 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
       const foreignKeys = foreignKeysOfAllTable[index];
       const indexes = indexesOfAllTables[index];
 
-      const columnNamesAndPartOfMap: Record<string, Set<string>> = {};
-      [...constraints, ...indexes].forEach((item: {type: string, columns: string[]}) => {
-        item.columns.forEach(columnName => {
-          if (columnNamesAndPartOfMap[columnName]) {
-            columnNamesAndPartOfMap[columnName].add(item.type);
-          } else {
-            columnNamesAndPartOfMap[columnName] = new Set([item.type]);
-          }
-        });
-      });
-      const enrichedColumns = columns.map(column => {
-        column.partOf = Array.from(columnNamesAndPartOfMap[column.name] || []);
-        return column;
-      });
+      const enrichedColumns = this.getEnrichedColumns(
+        columns,
+        [...constraints, ...indexes]
+      );
 
       return { name, columns: enrichedColumns, constraints, foreignKeys, indexes };
     });
