@@ -113,4 +113,60 @@ describe('caseConverter', () => {
       });
     });
   });
+
+  describe('snake_case', () => {
+    it('should do nothing if the identifier is already in snake_case', () => {
+      expect(caseConverter('user_id', CaseType.SNAKE_CASE)).toStrictEqual({
+        newIdentifier: 'user_id',
+        tokens: [
+          'user',
+          'id'
+        ]
+      });
+      expect(caseConverter('id', CaseType.CAMEL_CASE)).toStrictEqual({
+        newIdentifier: 'id',
+        tokens: [
+          'id'
+        ]
+      });
+    });
+
+    it('should be able to convert identifier', () => {
+      expect(caseConverter('userId', CaseType.SNAKE_CASE)).toStrictEqual({
+        newIdentifier: 'user_id',
+        tokens: [
+          'user',
+          'Id'
+        ]
+      });
+      expect(caseConverter('user_IdV2', CaseType.SNAKE_CASE)).toStrictEqual({
+        newIdentifier: 'user_id_v2',
+        tokens: [
+          'user',
+          'Id',
+          'V2'
+        ]
+      });
+    });
+
+    it('should lower case the acronyms', () => {
+      expect(caseConverter('ISRO_satellite_launch_date', CaseType.SNAKE_CASE)).toStrictEqual({
+        newIdentifier: 'isro_satellite_launch_date',
+        tokens: [
+          'ISRO',
+          'satellite',
+          'launch',
+          'date'
+        ]
+      });
+      expect(caseConverter('homePage_URL', CaseType.SNAKE_CASE)).toStrictEqual({
+        newIdentifier: 'home_page_url',
+        tokens: [
+          'home',
+          'Page',
+          'URL'
+        ]
+      });
+    });
+  });
 });

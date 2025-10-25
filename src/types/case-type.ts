@@ -1,4 +1,5 @@
 export enum CaseType {
-    PASCAL_CASE = 'pascalCase',
-    CAMEL_CASE = 'camelCase',
+    PASCAL_CASE = 'PASCAL_CASE',
+    CAMEL_CASE = 'CAMEL_CASE',
+    SNAKE_CASE = 'SNAKE_CASE',
 }
