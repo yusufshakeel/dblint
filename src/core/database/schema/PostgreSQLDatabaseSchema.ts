@@ -1,5 +1,15 @@
 import DatabaseSchema from './DatabaseSchema';
-import { Column, Constraint, ConstraintType, ForeignKey, Index, IndexType, Schema } from '../../../types/database';
+import {
+  Column,
+  Constraint,
+  ConstraintType,
+  ForeignKey,
+  Index,
+  IndexType,
+  Schema,
+  Trigger, TriggerEvent, TriggerType,
+  View
+} from '../../../types/database';
 import { Knex } from 'knex';
 import Configs from '../../../configs';
 import { parsePgArray } from '../../../utils';
@@ -23,6 +33,27 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
     return rows
       .map((r: any) => r.tableName as string)
       .filter((name: string) => !Configs.ignoreTables.includes(name));
+  }
+
+  async getViews(): Promise<View[]> {
+    const sql = `
+        SELECT
+            v.relname AS "viewName",
+            array_agg(DISTINCT t.relname::text) AS "tables"
+        FROM pg_depend d
+            JOIN pg_rewrite r ON r.oid = d.objid
+            JOIN pg_class v ON v.oid = r.ev_class
+            JOIN pg_class t ON t.oid = d.refobjid
+        WHERE v.relkind IN ('v', 'm')   -- 'v' = view, 'm' = materialized view
+            AND t.relkind IN ('r', 'p')   -- 'r' = table, 'p' = partitioned table
+        GROUP BY v.relname
+        ORDER BY v.relname;
+    `;
+    const { rows } = await this.dbInstance.raw(sql);
+    return rows.map((r: any) => ({
+      name: r.viewName,
+      tables: parsePgArray(r.tables)
+    }));
   }
 
   async getColumns(tableName: string): Promise<Column[]> {
@@ -289,7 +320,7 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
               FROM generate_series(1, i.indnkeyatts) AS k
             ),
             matches AS (
-              -- regexp_matches returns text[] -> take first element with [1]
+              -- regexp_matches returns text[] -> take the first element with [1]
               SELECT kd.ord,
                      (regexp_matches(kd.keydef, '([A-Za-z_][A-Za-z0-9_]*)', 'g'))[1] AS raw_token
               FROM keydefs kd
@@ -341,6 +372,43 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
     }));
   }
 
+  async getTriggers(tableName: string): Promise<Trigger[]> {
+    const sql = `
+        SELECT
+            t.tgname AS "triggerName",
+            CASE
+                WHEN t.tgtype & 66 = 66 THEN '${TriggerType.INSTEAD_OF}'
+                WHEN t.tgtype & 64 = 64 THEN '${TriggerType.BEFORE}'
+                ELSE '${TriggerType.AFTER}'
+            END AS "triggerType",
+            array_remove(ARRAY[
+                CASE WHEN t.tgtype & 4 = 4 THEN '${TriggerEvent.INSERT}' END,
+                CASE WHEN t.tgtype & 8 = 8 THEN '${TriggerEvent.DELETE}' END,
+                CASE WHEN t.tgtype & 16 = 16 THEN '${TriggerEvent.UPDATE}' END,
+                CASE WHEN t.tgtype & 32 = 32 THEN '${TriggerEvent.TRUNCATE}' END
+            ], NULL) AS "triggerEvent",
+            COALESCE(array_agg(a.attname ORDER BY a.attnum), '{}'::text[]) AS columns
+        FROM pg_trigger t
+                 JOIN pg_class c ON c.oid = t.tgrelid
+                 JOIN pg_namespace n ON n.oid = c.relnamespace
+                 LEFT JOIN pg_attribute a
+                           ON a.attrelid = c.oid
+                               AND a.attnum = ANY(t.tgattr)  -- map column numbers to names
+        WHERE n.nspname = 'public'         -- schema
+          AND c.relname = '${tableName}'   -- table
+          AND NOT t.tgisinternal           -- exclude internal triggers
+        GROUP BY t.tgname, t.tgtype
+        ORDER BY t.tgname;
+      `;
+    const { rows } = await this.dbInstance.raw(sql);
+    return rows.map((r: any) => ({
+      name: r.triggerName,
+      type: r.triggerType,
+      event: parsePgArray(r.triggerEvent),
+      columns: parsePgArray(r.columns)
+    }));
+  }
+
   getEnrichedColumns(
     columns: Column[],
     constraintsAndIndexes: { type: string, columns: string[] }[]
@@ -363,6 +431,10 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
 
   async getSchema(): Promise<Schema> {
     const tableNames = await this.getTableNames();
+    const views = await this.getViews();
+    const triggersOfAllTables = await Promise.all(
+      tableNames.map(tableName => this.getTriggers(tableName))
+    );
     const columnsOfAllTables = await Promise.all(
       tableNames.map(tableName => this.getColumns(tableName))
     );
@@ -380,17 +452,19 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
       const constraints = constraintsOfAllTables[index];
       const foreignKeys = foreignKeysOfAllTable[index];
       const indexes = indexesOfAllTables[index];
+      const triggers = triggersOfAllTables[index];
 
       const enrichedColumns = this.getEnrichedColumns(
         columns,
         [...constraints, ...indexes]
       );
 
-      return { name, columns: enrichedColumns, constraints, foreignKeys, indexes };
+      return { name, columns: enrichedColumns, constraints, foreignKeys, indexes, triggers };
     });
 
     return {
-      tables: enrichedTables
+      tables: enrichedTables,
+      views
     };
   }
 }

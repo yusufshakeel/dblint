@@ -62,14 +62,41 @@ export type Index = {
     isPartial: boolean;
 }
 
+export enum TriggerType {
+    BEFORE = 'BEFORE',
+    AFTER = 'AFTER',
+    INSTEAD_OF = 'INSTEAD OF',
+}
+
+export enum TriggerEvent {
+    INSERT = 'INSERT',
+    UPDATE = 'UPDATE',
+    DELETE = 'DELETE',
+    TRUNCATE = 'TRUNCATE',
+}
+
+export type Trigger = {
+    name: string;
+    type: TriggerType;
+    event: string;
+    columns: string[];
+};
+
 export type Table = {
     name: string;
     columns: Column[];
     constraints: Constraint[];
     foreignKeys: ForeignKey[];
     indexes: Index[];
+    triggers: Trigger[];
+};
+
+export type View = {
+    name: string;
+    tables: string[];
 };
 
 export type Schema = {
     tables: Table[];
+    views: View[];
 };

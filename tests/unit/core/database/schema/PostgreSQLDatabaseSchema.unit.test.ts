@@ -162,6 +162,59 @@ describe('PostgreSQLDatabaseSchema', () => {
     });
   });
 
+  describe('getViews', () => {
+    it('should return views', async () => {
+      raw.mockReturnValue({
+        rows: [
+          {
+            viewName: 'v_all_types_demo_active',
+            tables: '{all_types_demo,user_group}'
+          }
+        ]
+      });
+      const instance = { raw } as unknown as Knex;
+      const result = await new PostgreSQLDatabaseSchema(instance).getViews();
+      expect(raw).toHaveBeenCalled();
+      expect(result).toStrictEqual([
+        {
+          name: 'v_all_types_demo_active',
+          tables: [
+            'all_types_demo',
+            'user_group'
+          ]
+        }
+      ]);
+    });
+  });
+
+  describe('getTriggers', () => {
+    it('should return triggers', async () => {
+      raw.mockReturnValue({
+        rows: [
+          {
+            triggerName: 'trg_set_updated_at',
+            triggerType: 'AFTER',
+            triggerEvent: '{UPDATE}',
+            columns: '{}'
+          }
+        ]
+      });
+      const instance = { raw } as unknown as Knex;
+      const result = await new PostgreSQLDatabaseSchema(instance).getTriggers('table1');
+      expect(raw).toHaveBeenCalled();
+      expect(result).toStrictEqual([
+        {
+          name: 'trg_set_updated_at',
+          type: 'AFTER',
+          event: [
+            'UPDATE'
+          ],
+          columns: []
+        }
+      ]);
+    });
+  });
+
   describe('getEnrichedColumns', () => {
     it('should return enriched columns', () => {
       const instance = { raw } as unknown as Knex;
@@ -243,6 +296,8 @@ describe('PostgreSQLDatabaseSchema', () => {
       jest.spyOn(schema, 'getConstraints').mockResolvedValue([]);
       jest.spyOn(schema, 'getForeignKeys').mockResolvedValue([]);
       jest.spyOn(schema, 'getIndexes').mockResolvedValue([]);
+      jest.spyOn(schema, 'getViews').mockResolvedValue([]);
+      jest.spyOn(schema, 'getTriggers').mockResolvedValue([]);
 
       const result = await schema.getSchema();
       expect(result).toStrictEqual({
@@ -261,9 +316,11 @@ describe('PostgreSQLDatabaseSchema', () => {
             ],
             constraints: [],
             foreignKeys: [],
-            indexes: []
+            indexes: [],
+            triggers: []
           }
-        ]
+        ],
+        views: []
       });
     });
   });
