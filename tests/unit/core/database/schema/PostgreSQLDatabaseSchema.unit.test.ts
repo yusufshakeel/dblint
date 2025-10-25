@@ -193,9 +193,11 @@ describe('PostgreSQLDatabaseSchema', () => {
         rows: [
           {
             triggerName: 'trg_set_updated_at',
-            triggerType: 'AFTER',
+            triggerTiming: 'BEFORE',
             triggerEvents: '{UPDATE}',
-            columns: '{}'
+            triggerLevel: 'ROW',
+            columns: '{}',
+            triggerDefinition: 'CREATE TRIGGER trg_set_updated_at BEFORE UPDATE ON all_types_demo FOR EACH ROW EXECUTE FUNCTION set_updated_at()'
           }
         ]
       });
@@ -205,11 +207,13 @@ describe('PostgreSQLDatabaseSchema', () => {
       expect(result).toStrictEqual([
         {
           name: 'trg_set_updated_at',
-          type: 'AFTER',
+          timing: 'BEFORE',
           events: [
             'UPDATE'
           ],
-          columns: []
+          level: 'ROW',
+          columns: [],
+          definition: 'CREATE TRIGGER trg_set_updated_at BEFORE UPDATE ON all_types_demo FOR EACH ROW EXECUTE FUNCTION set_updated_at()'
         }
       ]);
     });

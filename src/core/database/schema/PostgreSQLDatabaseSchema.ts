@@ -7,7 +7,7 @@ import {
   Index,
   IndexType,
   Schema,
-  Trigger, TriggerEvent, TriggerType,
+  Trigger,
   View
 } from '../../../types/database';
 import { Knex } from 'knex';
@@ -377,35 +377,42 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
         SELECT
             t.tgname AS "triggerName",
             CASE
-                WHEN t.tgtype & 66 = 66 THEN '${TriggerType.INSTEAD_OF}'
-                WHEN t.tgtype & 64 = 64 THEN '${TriggerType.BEFORE}'
-                ELSE '${TriggerType.AFTER}'
-            END AS "triggerType",
+                WHEN (t.tgtype & 2) <> 0 THEN 'BEFORE'
+                WHEN (t.tgtype & 64) <> 0 THEN 'INSTEAD OF'
+                ELSE 'AFTER'
+            END AS "triggerTiming",
+            CASE
+                WHEN (t.tgtype & 1) <> 0 THEN 'ROW'
+                ELSE 'STATEMENT'
+            END AS "triggerLevel",
             array_remove(ARRAY[
-                CASE WHEN t.tgtype & 4 = 4 THEN '${TriggerEvent.INSERT}' END,
-                CASE WHEN t.tgtype & 8 = 8 THEN '${TriggerEvent.DELETE}' END,
-                CASE WHEN t.tgtype & 16 = 16 THEN '${TriggerEvent.UPDATE}' END,
-                CASE WHEN t.tgtype & 32 = 32 THEN '${TriggerEvent.TRUNCATE}' END
+                CASE WHEN (t.tgtype & 4) <> 0 THEN 'INSERT' END,
+                CASE WHEN (t.tgtype & 8) <> 0 THEN 'DELETE' END,
+                CASE WHEN (t.tgtype & 16) <> 0 THEN 'UPDATE' END,
+                CASE WHEN (t.tgtype & 32) <> 0 THEN 'TRUNCATE' END
             ], NULL) AS "triggerEvents",
-            COALESCE(array_agg(a.attname ORDER BY a.attnum), '{}'::text[]) AS columns
+            COALESCE(array_agg(a.attname ORDER BY a.attnum), '{}'::text[]) AS columns,
+            pg_get_triggerdef(t.oid, true) AS "triggerDefinition"
         FROM pg_trigger t
-                 JOIN pg_class c ON c.oid = t.tgrelid
-                 JOIN pg_namespace n ON n.oid = c.relnamespace
-                 LEFT JOIN pg_attribute a
-                           ON a.attrelid = c.oid
-                               AND a.attnum = ANY(t.tgattr)  -- map column numbers to names
-        WHERE n.nspname = 'public'         -- schema
-          AND c.relname = '${tableName}'   -- table
-          AND NOT t.tgisinternal           -- exclude internal triggers
-        GROUP BY t.tgname, t.tgtype
+        JOIN pg_class c ON c.oid = t.tgrelid
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        LEFT JOIN pg_attribute a
+               ON a.attrelid = c.oid
+              AND a.attnum = ANY(t.tgattr)
+        WHERE n.nspname = 'public'          -- schema
+          AND c.relname = '${tableName}' -- table name
+          AND NOT t.tgisinternal             -- exclude internal triggers
+        GROUP BY t.tgname, t.tgtype, t.oid
         ORDER BY t.tgname;
       `;
     const { rows } = await this.dbInstance.raw(sql);
     return rows.map((r: any) => ({
       name: r.triggerName,
-      type: r.triggerType,
+      timing: r.triggerTiming,
+      level: r.triggerLevel,
       events: parsePgArray(r.triggerEvents),
-      columns: parsePgArray(r.columns)
+      columns: parsePgArray(r.columns),
+      definition: r.triggerDefinition
     }));
   }
 

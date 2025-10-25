@@ -62,7 +62,7 @@ export type Index = {
     isPartial: boolean;
 }
 
-export enum TriggerType {
+export enum TriggerTiming {
     BEFORE = 'BEFORE',
     AFTER = 'AFTER',
     INSTEAD_OF = 'INSTEAD OF',
@@ -77,9 +77,10 @@ export enum TriggerEvent {
 
 export type Trigger = {
     name: string;
-    type: TriggerType;
+    timing: TriggerTiming;
     events: string;
     columns: string[];
+    definition: string;
 };
 
 export type Table = {
