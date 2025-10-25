@@ -39,20 +39,22 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
     const sql = `
         SELECT
             v.relname AS "viewName",
-            array_agg(DISTINCT t.relname::text) AS "tables"
+            array_agg(DISTINCT t.relname::text) AS "tables",
+            pg_get_viewdef(v.oid, true) AS "viewDefinition"
         FROM pg_depend d
             JOIN pg_rewrite r ON r.oid = d.objid
             JOIN pg_class v ON v.oid = r.ev_class
             JOIN pg_class t ON t.oid = d.refobjid
         WHERE v.relkind IN ('v', 'm')   -- 'v' = view, 'm' = materialized view
             AND t.relkind IN ('r', 'p')   -- 'r' = table, 'p' = partitioned table
-        GROUP BY v.relname
+        GROUP BY v.relname, v.oid
         ORDER BY v.relname;
     `;
     const { rows } = await this.dbInstance.raw(sql);
     return rows.map((r: any) => ({
       name: r.viewName,
-      tables: parsePgArray(r.tables)
+      tableNames: parsePgArray(r.tables),
+      definition: r.viewDefinition
     }));
   }
 

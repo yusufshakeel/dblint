@@ -100,7 +100,8 @@ export type Table = {
 
 export type View = {
     name: string;
-    tables: string[];
+    tableNames: string[];
+    definition: string;
 };
 
 export type Schema = {

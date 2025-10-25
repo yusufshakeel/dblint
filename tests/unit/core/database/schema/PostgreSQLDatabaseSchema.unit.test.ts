@@ -168,7 +168,8 @@ describe('PostgreSQLDatabaseSchema', () => {
         rows: [
           {
             viewName: 'v_all_types_demo_active',
-            tables: '{all_types_demo,user_group}'
+            tables: '{all_types_demo,user_group}',
+            viewDefinition: 'SOME VIEW DEFINITION'
           }
         ]
       });
@@ -178,10 +179,11 @@ describe('PostgreSQLDatabaseSchema', () => {
       expect(result).toStrictEqual([
         {
           name: 'v_all_types_demo_active',
-          tables: [
+          tableNames: [
             'all_types_demo',
             'user_group'
-          ]
+          ],
+          definition: 'SOME VIEW DEFINITION'
         }
       ]);
     });
