@@ -7,7 +7,7 @@ import {
   Index,
   IndexType,
   Schema,
-  Trigger,
+  Trigger, TriggerEvent, TriggerLevel, TriggerTiming,
   View
 } from '../../../types/database';
 import { Knex } from 'knex';
@@ -377,19 +377,19 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
         SELECT
             t.tgname AS "triggerName",
             CASE
-                WHEN (t.tgtype & 2) <> 0 THEN 'BEFORE'
-                WHEN (t.tgtype & 64) <> 0 THEN 'INSTEAD OF'
-                ELSE 'AFTER'
+                WHEN (t.tgtype & 2) <> 0 THEN '${TriggerTiming.BEFORE}'
+                WHEN (t.tgtype & 64) <> 0 THEN '${TriggerTiming.INSTEAD_OF}'
+                ELSE '${TriggerTiming.AFTER}'
             END AS "triggerTiming",
             CASE
-                WHEN (t.tgtype & 1) <> 0 THEN 'ROW'
-                ELSE 'STATEMENT'
+                WHEN (t.tgtype & 1) <> 0 THEN '${TriggerLevel.ROW}'
+                ELSE '${TriggerLevel.STATEMENT}'
             END AS "triggerLevel",
             array_remove(ARRAY[
-                CASE WHEN (t.tgtype & 4) <> 0 THEN 'INSERT' END,
-                CASE WHEN (t.tgtype & 8) <> 0 THEN 'DELETE' END,
-                CASE WHEN (t.tgtype & 16) <> 0 THEN 'UPDATE' END,
-                CASE WHEN (t.tgtype & 32) <> 0 THEN 'TRUNCATE' END
+                CASE WHEN (t.tgtype & 4) <> 0 THEN '${TriggerEvent.INSERT}' END,
+                CASE WHEN (t.tgtype & 8) <> 0 THEN '${TriggerEvent.DELETE}' END,
+                CASE WHEN (t.tgtype & 16) <> 0 THEN '${TriggerEvent.UPDATE}' END,
+                CASE WHEN (t.tgtype & 32) <> 0 THEN '${TriggerEvent.TRUNCATE}' END
             ], NULL) AS "triggerEvents",
             COALESCE(array_agg(a.attname ORDER BY a.attnum), '{}'::text[]) AS columns,
             pg_get_triggerdef(t.oid, true) AS "triggerDefinition"

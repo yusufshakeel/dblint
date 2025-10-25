@@ -75,10 +75,16 @@ export enum TriggerEvent {
     TRUNCATE = 'TRUNCATE',
 }
 
+export enum TriggerLevel {
+    STATEMENT = 'STATEMENT',
+    ROW = 'ROW',
+}
+
 export type Trigger = {
     name: string;
     timing: TriggerTiming;
-    events: string;
+    level: TriggerLevel;
+    events: TriggerEvent;
     columns: string[];
     definition: string;
 };
