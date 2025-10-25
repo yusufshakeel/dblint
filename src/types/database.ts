@@ -25,6 +25,15 @@ export enum ConstraintType {
     UNIQUE = 'UNIQUE',
     EXCLUDE = 'EXCLUDE',
     CHECK = 'CHECK',
+    CONSTRAINT_TRIGGER = 'CONSTRAINT TRIGGER',
+    FOREIGN_KEY = 'FOREIGN KEY',
+}
+
+export enum IndexType {
+    UNIQUE_INDEX = 'UNIQUE INDEX',
+    UNIQUE_PARTIAL_INDEX = 'UNIQUE PARTIAL INDEX',
+    PARTIAL_INDEX = 'PARTIAL INDEX',
+    REGULAR_INDEX = 'REGULAR INDEX',
 }
 
 export type Constraint = {
@@ -45,7 +54,7 @@ export type ForeignKey = {
 
 export type Index = {
     name: string;
-    type: string;
+    type: IndexType;
     columns: string[];
     predicate: string | null;
     isUnique: boolean;

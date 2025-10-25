@@ -1,5 +1,5 @@
 import DatabaseSchema from './DatabaseSchema';
-import { Column, Constraint, ForeignKey, Index, Schema } from '../../../types/database';
+import { Column, Constraint, ConstraintType, ForeignKey, Index, IndexType, Schema } from '../../../types/database';
 import { Knex } from 'knex';
 import Configs from '../../../configs';
 import { parsePgArray } from '../../../utils';
@@ -10,15 +10,16 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
   constructor(dbInstance: Knex) {
     this.dbInstance = dbInstance;
   }
-    
+
   async getTableNames(): Promise<string[]> {
-    const { rows } = await this.dbInstance.raw(`
+    const sql = `
         SELECT table_name
         FROM information_schema.tables
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
           AND table_type = 'BASE TABLE'
         ORDER BY table_schema, table_name;
-    `);
+    `;
+    const { rows } = await this.dbInstance.raw(sql);
     return rows
       .map((r: any) => r.table_name as string)
       .filter((name: string) => !Configs.ignoreTables.includes(name));
@@ -114,10 +115,12 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
         )
         SELECT con.conname AS "constraintName",
                CASE con.contype
-                   WHEN 'p' THEN 'PRIMARY KEY'
-                   WHEN 'u' THEN 'UNIQUE'
-                   WHEN 'c' THEN 'CHECK'
-                   WHEN 'x' THEN 'EXCLUDE'
+                   WHEN 'p' THEN '${ConstraintType.PRIMARY_KEY}'
+                   WHEN 'u' THEN '${ConstraintType.UNIQUE}'
+                   WHEN 'c' THEN '${ConstraintType.CHECK}'
+                   WHEN 'x' THEN '${ConstraintType.EXCLUDE}'
+                   WHEN 't' THEN '${ConstraintType.CONSTRAINT_TRIGGER}'
+                   WHEN 'f' THEN '${ConstraintType.FOREIGN_KEY}'
                    ELSE con.contype::text
                    END     AS "constraintType",
                COALESCE(
@@ -144,7 +147,6 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
                    END     AS predicate
         FROM pg_constraint con
                  JOIN tbl ON tbl.relid = con.conrelid
-        WHERE con.contype <> 'f' -- exclude FOREIGN KEY constraints
         ORDER BY "constraintType", "constraintName";
     `;
     const { rows } = await this.dbInstance.raw(sql);
@@ -235,10 +237,10 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
         SELECT
           ci.relname AS "indexName",
           CASE
-            WHEN i.indisunique AND i.indpred IS NOT NULL THEN 'UNIQUE PARTIAL'
-            WHEN i.indisunique THEN 'UNIQUE'
-            WHEN i.indpred IS NOT NULL THEN 'PARTIAL'
-            ELSE 'REGULAR'
+            WHEN i.indisunique AND i.indpred IS NOT NULL THEN '${IndexType.UNIQUE_PARTIAL_INDEX}'
+            WHEN i.indisunique THEN '${IndexType.UNIQUE_INDEX}'
+            WHEN i.indpred IS NOT NULL THEN '${IndexType.PARTIAL_INDEX}'
+            ELSE '${IndexType.REGULAR_INDEX}'
           END AS "indexType",
           am.amname AS method,
           i.indisprimary AS "isPrimary",
@@ -353,14 +355,32 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
     const indexesOfAllTables = await Promise.all(
       tableNames.map(tableName => this.getIndexes(tableName))
     );
+    const enrichedTables = tableNames.map((name, index) => {
+      const columns = columnsOfAllTables[index];
+      const constraints = constraintsOfAllTables[index];
+      const foreignKeys = foreignKeysOfAllTable[index];
+      const indexes = indexesOfAllTables[index];
+
+      const columnNamesAndPartOfMap: Record<string, Set<string>> = {};
+      [...constraints, ...indexes].forEach((item: {type: string, columns: string[]}) => {
+        item.columns.forEach(columnName => {
+          if (columnNamesAndPartOfMap[columnName]) {
+            columnNamesAndPartOfMap[columnName].add(item.type);
+          } else {
+            columnNamesAndPartOfMap[columnName] = new Set([item.type]);
+          }
+        });
+      });
+      const enrichedColumns = columns.map(column => {
+        column.partOf = Array.from(columnNamesAndPartOfMap[column.name] || []);
+        return column;
+      });
+
+      return { name, columns: enrichedColumns, constraints, foreignKeys, indexes };
+    });
+
     return {
-      tables: tableNames.map((name, index) => ({
-        name,
-        columns: columnsOfAllTables[index],
-        constraints: constraintsOfAllTables[index],
-        foreignKeys: foreignKeysOfAllTable[index],
-        indexes: indexesOfAllTables[index]
-      }))
+      tables: enrichedTables
     };
   }
 }
