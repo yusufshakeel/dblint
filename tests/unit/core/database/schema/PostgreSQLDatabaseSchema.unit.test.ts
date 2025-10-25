@@ -194,7 +194,7 @@ describe('PostgreSQLDatabaseSchema', () => {
           {
             triggerName: 'trg_set_updated_at',
             triggerType: 'AFTER',
-            triggerEvent: '{UPDATE}',
+            triggerEvents: '{UPDATE}',
             columns: '{}'
           }
         ]
@@ -206,7 +206,7 @@ describe('PostgreSQLDatabaseSchema', () => {
         {
           name: 'trg_set_updated_at',
           type: 'AFTER',
-          event: [
+          events: [
             'UPDATE'
           ],
           columns: []

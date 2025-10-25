@@ -386,7 +386,7 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
                 CASE WHEN t.tgtype & 8 = 8 THEN '${TriggerEvent.DELETE}' END,
                 CASE WHEN t.tgtype & 16 = 16 THEN '${TriggerEvent.UPDATE}' END,
                 CASE WHEN t.tgtype & 32 = 32 THEN '${TriggerEvent.TRUNCATE}' END
-            ], NULL) AS "triggerEvent",
+            ], NULL) AS "triggerEvents",
             COALESCE(array_agg(a.attname ORDER BY a.attnum), '{}'::text[]) AS columns
         FROM pg_trigger t
                  JOIN pg_class c ON c.oid = t.tgrelid
@@ -404,7 +404,7 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
     return rows.map((r: any) => ({
       name: r.triggerName,
       type: r.triggerType,
-      event: parsePgArray(r.triggerEvent),
+      events: parsePgArray(r.triggerEvents),
       columns: parsePgArray(r.columns)
     }));
   }

@@ -78,7 +78,7 @@ export enum TriggerEvent {
 export type Trigger = {
     name: string;
     type: TriggerType;
-    event: string;
+    events: string;
     columns: string[];
 };
 
