@@ -71,6 +71,22 @@ class Configs {
   get customColumnNames(): Record<string, Record<string, string>> {
     return JSON.parse(process.env.DBLINT_CUSTOM_COLUMN_NAMES || '{}');
   }
+
+  get customConstraintNames(): Record<string, Record<string, string>> {
+    return JSON.parse(process.env.DBLINT_CUSTOM_CONSTRAINT_NAMES || '{}');
+  }
+
+  get customIndexNames(): Record<string, Record<string, string>> {
+    return JSON.parse(process.env.DBLINT_CUSTOM_INDEX_NAMES || '{}');
+  }
+
+  get customTriggerNames(): Record<string, Record<string, string>> {
+    return JSON.parse(process.env.DBLINT_CUSTOM_TRIGGER_NAMES || '{}');
+  }
+
+  get customForeignNames(): Record<string, Record<string, string>> {
+    return JSON.parse(process.env.DBLINT_CUSTOM_FOREIGN_NAMES || '{}');
+  }
 }
 
 export default new Configs();

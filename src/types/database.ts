@@ -84,7 +84,7 @@ export type Trigger = {
     name: string;
     timing: TriggerTiming;
     level: TriggerLevel;
-    events: TriggerEvent;
+    events: TriggerEvent[];
     columns: string[];
     definition: string;
 };

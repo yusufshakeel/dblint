@@ -1,4 +1,4 @@
-import { Schema } from './database';
+import { Column, Constraint, ForeignKey, Index, Schema, Trigger, View } from './database';
 import { CaseType } from './case-type';
 
 export type MaxLengthOfIdentifiers = {
@@ -46,24 +46,50 @@ export type Validation = {
     ignoredReason?: string,
 }
 
-export type LintDetail = {
+export type LintSuggestion = {
     name: string,
     newName: string,
     isCustomIdentifier: boolean,
 }
 
+export type LintForeignKey = {
+    suggestion: LintSuggestion,
+    foreignKey: ForeignKey
+}
+
+export type LintTrigger = {
+    suggestion: LintSuggestion,
+    trigger: Trigger
+}
+
+export type LintIndex = {
+    suggestion: LintSuggestion,
+    index: Index
+}
+
+export type LintConstraint = {
+    suggestion: LintSuggestion,
+    constraint: Constraint
+}
+
 export type LintColumn = {
-    details: LintDetail
+    suggestion: LintSuggestion,
+    column: Column
 }
 
 export type LintTable = {
-    details: LintDetail,
+    suggestion: LintSuggestion,
     columns: LintColumn[],
+    constraints: LintConstraint[],
+    foreignKeys: LintForeignKey[],
+    indexes: LintIndex[],
+    triggers: LintTrigger[],
     validations: Validation[]
 }
 
 export type LintView = {
-    details: LintDetail,
+    suggestion: LintSuggestion,
+    view: View,
     validations: Validation[]
 }
 

@@ -153,7 +153,6 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
                    WHEN 'c' THEN '${ConstraintType.CHECK}'
                    WHEN 'x' THEN '${ConstraintType.EXCLUDE}'
                    WHEN 't' THEN '${ConstraintType.CONSTRAINT_TRIGGER}'
-                   WHEN 'f' THEN '${ConstraintType.FOREIGN_KEY}'
                    ELSE con.contype::text
                    END     AS "constraintType",
                COALESCE(
@@ -180,6 +179,7 @@ class PostgreSQLDatabaseSchema implements DatabaseSchema {
                    END     AS predicate
         FROM pg_constraint con
                  JOIN tbl ON tbl.relid = con.conrelid
+        WHERE con.contype <> 'f' -- exclude foreign keys
         ORDER BY "constraintType", "constraintName";
     `;
     const { rows } = await this.dbInstance.raw(sql);
