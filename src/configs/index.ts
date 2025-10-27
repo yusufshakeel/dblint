@@ -87,6 +87,10 @@ class Configs {
   get customForeignKeyNames(): Record<string, Record<string, string>> {
     return JSON.parse(process.env.DBLINT_CUSTOM_FOREIGN_KEY_NAMES || '{}');
   }
+
+  get ignoreValidationErrors(): Record<string, Record<string, string>> {
+    return JSON.parse(process.env.DBLINT_IGNORE_VALIDATION_ERRORS || '{}');
+  }
 }
 
 export default new Configs();
