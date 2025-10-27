@@ -14,8 +14,8 @@ import {
   Trigger,
   View
 } from '../../types/database';
-import PostgreSQLSuggester from './suggesters/PostgreSQLSuggester';
-import PostgreSQLValidator from './validators/PostgreSQLValidator';
+import PostgreSQLDatabaseSuggester from './suggesters/PostgreSQLDatabaseSuggester';
+import PostgreSQLDatabaseValidator from './validators/PostgreSQLDatabaseValidator';
 import { getSchema } from '../database/schema/schema';
 
 class PostgreSQLDatabaseLinter {
@@ -32,14 +32,16 @@ class PostgreSQLDatabaseLinter {
       > = {};
 
     schema.tables.forEach((table: Table) => {
-      const newTableNameResult = PostgreSQLSuggester.suggestTableName(table.name);
+      const newTableNameResult = PostgreSQLDatabaseSuggester.suggestTableName(table.name);
       oldToNewTableNameMap[table.name] = {
         newName: newTableNameResult.newName,
         isCustomIdentifier: newTableNameResult.isCustomIdentifier
       };
 
       table.columns.forEach((column: Column) => {
-        const newColumnNameResult = PostgreSQLSuggester.suggestColumnName(table.name, column.name);
+        const newColumnNameResult = PostgreSQLDatabaseSuggester.suggestColumnName(
+          table.name, column.name
+        );
         oldToNewColumnNameMap[table.name] = {
           ...oldToNewColumnNameMap[table.name],
           [column.name]: {
@@ -54,13 +56,15 @@ class PostgreSQLDatabaseLinter {
       const newTableNameResult = oldToNewTableNameMap[table.name];
       const validations = newTableNameResult.isCustomIdentifier
         ? []
-        : PostgreSQLValidator.validateTableName(table.name, newTableNameResult.newName);
+        : PostgreSQLDatabaseValidator.validateTableName(table.name, newTableNameResult.newName);
 
       const lintedColumns = table.columns.map((column: Column): LintColumn => {
         const newColumnNameResult = oldToNewColumnNameMap[table.name][column.name];
         const columnValidations = newColumnNameResult.isCustomIdentifier
           ? []
-          : PostgreSQLValidator.validateColumnName(column.name, newColumnNameResult.newName);
+          : PostgreSQLDatabaseValidator.validateColumnName(
+            column.name, newColumnNameResult.newName
+          );
 
         validations.push(...columnValidations);
 
@@ -78,7 +82,7 @@ class PostgreSQLDatabaseLinter {
         const newColumnNames = constraint.columns.map(
           columnName => oldToNewColumnNameMap[table.name][columnName].newName
         );
-        const newConstraintNameResult = PostgreSQLSuggester.suggestConstraintName(
+        const newConstraintNameResult = PostgreSQLDatabaseSuggester.suggestConstraintName(
           table.name,
           newTableNameResult.newName,
           constraint.name,
@@ -88,7 +92,7 @@ class PostgreSQLDatabaseLinter {
 
         const constraintValidation = newConstraintNameResult.isCustomIdentifier
           ? []
-          : PostgreSQLValidator.validateConstraintName(
+          : PostgreSQLDatabaseValidator.validateConstraintName(
             constraint.name, newConstraintNameResult.newName
           );
 
@@ -108,7 +112,7 @@ class PostgreSQLDatabaseLinter {
         const newColumnNames = index.columns.map(
           columnName => oldToNewColumnNameMap[table.name][columnName].newName
         );
-        const newIndexNameResult = PostgreSQLSuggester.suggestIndexName(
+        const newIndexNameResult = PostgreSQLDatabaseSuggester.suggestIndexName(
           table.name,
           newTableNameResult.newName,
           index.name,
@@ -118,7 +122,7 @@ class PostgreSQLDatabaseLinter {
 
         const indexValidation = newIndexNameResult.isCustomIdentifier
           ? []
-          : PostgreSQLValidator.validateIndexName(index.name, newIndexNameResult.newName);
+          : PostgreSQLDatabaseValidator.validateIndexName(index.name, newIndexNameResult.newName);
 
         validations.push(...indexValidation);
 
@@ -136,7 +140,7 @@ class PostgreSQLDatabaseLinter {
         const newColumnNames = trigger.columns.map(
           columnName => oldToNewColumnNameMap[table.name][columnName].newName
         );
-        const newTriggerNameResult = PostgreSQLSuggester.suggestTriggerName(
+        const newTriggerNameResult = PostgreSQLDatabaseSuggester.suggestTriggerName(
           table.name,
           newTableNameResult.newName,
           trigger.name,
@@ -147,7 +151,9 @@ class PostgreSQLDatabaseLinter {
 
         const triggerValidations = newTriggerNameResult.isCustomIdentifier
           ? []
-          : PostgreSQLValidator.validateTriggerName(trigger.name, newTriggerNameResult.newName);
+          : PostgreSQLDatabaseValidator.validateTriggerName(
+            trigger.name, newTriggerNameResult.newName
+          );
 
         validations.push(...triggerValidations);
 
@@ -169,7 +175,7 @@ class PostgreSQLDatabaseLinter {
           columnName => oldToNewColumnNameMap[foreignKey.referencedTable][columnName].newName
         );
         const referenceTableNewName = oldToNewTableNameMap[foreignKey.referencedTable].newName;
-        const newForeignKeyNameResult = PostgreSQLSuggester.suggestForeignKeyName(
+        const newForeignKeyNameResult = PostgreSQLDatabaseSuggester.suggestForeignKeyName(
           table.name,
           newTableNameResult.newName,
           foreignKey.name,
@@ -180,7 +186,7 @@ class PostgreSQLDatabaseLinter {
 
         const foreignKeyValidations = newForeignKeyNameResult.isCustomIdentifier
           ? []
-          : PostgreSQLValidator.validateForeignKeyName(
+          : PostgreSQLDatabaseValidator.validateForeignKeyName(
             foreignKey.name, newForeignKeyNameResult.newName
           );
 
@@ -218,10 +224,10 @@ class PostgreSQLDatabaseLinter {
         tableName => oldToNewTableNameMap[tableName].newName
       );
       const { newName, isCustomIdentifier } =
-          PostgreSQLSuggester.suggestViewName(name, newTableNames);
+          PostgreSQLDatabaseSuggester.suggestViewName(name, newTableNames);
       const validations = isCustomIdentifier
         ? []
-        : PostgreSQLValidator.validateViewName(name, newName);
+        : PostgreSQLDatabaseValidator.validateViewName(name, newName);
       return {
         suggestion: {
           newName,

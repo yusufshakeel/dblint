@@ -4,7 +4,7 @@ import pluralize from 'pluralize';
 import { ConstraintPrefixType, IndexPrefixType, PREFIX } from '../../../constants/prefix';
 import { ConstraintType, IndexType, TriggerEvent, TriggerTiming } from '../../../types/database';
 
-class PostgreSQLSuggester {
+class PostgreSQLDatabaseSuggester {
   static suggestTableName(
     name: string
   ): { newName: string, isCustomIdentifier: boolean } {
@@ -139,4 +139,4 @@ class PostgreSQLSuggester {
   }
 }
 
-export default PostgreSQLSuggester;
+export default PostgreSQLDatabaseSuggester;

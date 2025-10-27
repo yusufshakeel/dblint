@@ -14,8 +14,14 @@ export const getSchema = async (): Promise<Schema> => {
     dbType: Configs.dbType
   };
   const instance = await dbConn.getConnection(dbConnectionConfig);
-  const dbSchema = databaseSchemaFactory(instance);
-  const schema = await dbSchema.getSchema();
-  await dbConn.closeConnection(instance);
-  return schema;
+
+  try {
+    const dbSchema = databaseSchemaFactory(instance);
+    const schema = await dbSchema.getSchema();
+    await dbConn.closeConnection(instance);
+    return schema;
+  } catch (error) {
+    await dbConn.closeConnection(instance);
+    throw error;
+  }
 };
