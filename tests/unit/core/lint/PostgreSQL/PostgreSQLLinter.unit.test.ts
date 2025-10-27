@@ -137,6 +137,12 @@ describe('PostgreSQLLinter', () => {
             identifier: 'trg_set_updated_at',
             message: 'Change the trigger name.',
             type: 'ERROR'
+          },
+          {
+            entity: 'TABLE',
+            identifier: 'all_types_demo',
+            message: 'Table has trigger(s). Do re-check the trigger(s) if you have changed the table and/or column(s).',
+            type: 'INFO'
           }
         ]
       });
@@ -332,7 +338,15 @@ describe('PostgreSQLLinter', () => {
               message: 'Change the view name.',
               type: 'ERROR'
             }
-          ]
+          ],
+          stats: {
+            validations: {
+              info: 0,
+              warning: 0,
+              error: 1,
+              ignoredError: 0
+            }
+          }
         }
       ]);
     });

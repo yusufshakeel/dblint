@@ -80,6 +80,15 @@ export type LintColumn = Column & {
     suggestion: LintSuggestion,
 }
 
+export type Stats = {
+    validations: {
+        info: number,
+        warning: number,
+        error: number,
+        ignoredError: number,
+    },
+}
+
 export type LintTable = {
     suggestion: LintSuggestion,
     name: string,
@@ -88,15 +97,18 @@ export type LintTable = {
     foreignKeys: LintForeignKey[],
     indexes: LintIndex[],
     triggers: LintTrigger[],
-    validations: Validation[]
+    validations: Validation[],
+    stats: Stats,
 }
 
 export type LintView = View & {
     suggestion: LintSuggestion,
-    validations: Validation[]
+    validations: Validation[],
+    stats: Stats,
 }
 
 export type Lint = {
     tables: LintTable[],
     views: LintView[],
+    stats: Stats,
 }

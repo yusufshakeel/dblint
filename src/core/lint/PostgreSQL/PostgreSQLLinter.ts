@@ -9,22 +9,15 @@ import {
   LintView,
   OldToNewColumnNameMapType,
   OldToNewTableNameMapType,
-  Validation
+  Validation,
+  ValidationEntity
 } from '../../../types/lint';
-import {
-  Column,
-  Constraint,
-  ForeignKey,
-  Index,
-  Schema,
-  Table,
-  Trigger,
-  View
-} from '../../../types/database';
+import { Column, Constraint, ForeignKey, Index, Schema, Table, Trigger, View } from '../../../types/database';
 import PostgreSQLLintSuggester from './PostgreSQLLintSuggester';
 import PostgreSQLLintValidator from './PostgreSQLLintValidator';
 import { getSchema } from '../../database/schema/schema';
 import { Linter } from '../Linter';
+import { getStats, getTotalStats } from './PostgreSQLLintStats';
 
 export const getLintedColumns = (
   table: Table,
@@ -162,6 +155,16 @@ export const getLintedTriggers = (
     };
   });
 
+  if (table.triggers.length) {
+    validations.push(
+      ...PostgreSQLLintValidator.validationInfo(
+        ValidationEntity.TABLE,
+        table.name,
+        'Table has trigger(s). Do re-check the trigger(s) if you have changed the table and/or column(s).'
+      )
+    );
+  }
+
   return { lintedTriggers, validations };
 };
 
@@ -230,7 +233,8 @@ export const getLintedViews = (
         isChangeNeeded: name !== newName
       },
       ...view,
-      validations
+      validations,
+      stats: getStats(validations)
     };
   });
 };
@@ -316,7 +320,8 @@ class PostgreSQLLinter implements Linter {
         foreignKeys: lintedForeignKeys,
         indexes: lintedIndexes,
         triggers: lintedTriggers,
-        validations
+        validations,
+        stats: getStats(validations)
       };
     });
 
@@ -324,7 +329,11 @@ class PostgreSQLLinter implements Linter {
 
     return {
       tables: lintedTables,
-      views: lintedViews
+      views: lintedViews,
+      stats: getTotalStats([
+        ...lintedTables.map(table => table.stats),
+        ...lintedViews.map(view => view.stats)
+      ])
     };
   }
 }

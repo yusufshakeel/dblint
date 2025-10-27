@@ -613,4 +613,4 @@ export const schema = {
       "definition": " SELECT a.id,\n    a.public_id,\n    a.username,\n    a.email,\n    lower(a.email::text) AS email_lower,\n    a.display_name,\n    a.full_name,\n    a.group_id,\n    g.code AS group_code,\n    a.is_active,\n    a.created_at,\n    a.updated_at,\n    a.price,\n    a.settings,\n    a.tags,\n    array_length(a.scores, 1) AS scores_count,\n    a.bio,\n    a.bio_tsv\n   FROM all_types_demo a\n     LEFT JOIN user_group g ON g.id = a.group_id\n  WHERE a.archived_at IS NULL AND a.is_active = true;"
     }
   ]
-}
+};

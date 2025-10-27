@@ -2,6 +2,21 @@ import { Validation, ValidationEntity, ValidationType } from '../../../types/lin
 import Configs from '../../../configs';
 
 class PostgreSQLLintValidator {
+  static validationInfo(
+    entity: ValidationEntity,
+    identifier: string,
+    message: string
+  ): Validation[] {
+    const validations: Validation[] = [];
+    validations.push({
+      type: ValidationType.INFO,
+      entity,
+      identifier,
+      message
+    });
+    return validations;
+  }
+
   static validateTableName(name: string, newName: string) {
     const validations: Validation[] = [];
     if (name.length > Configs.maxLengthOfIdentifiers.table) {
