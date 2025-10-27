@@ -4,7 +4,7 @@ import { CaseType } from '../types/case-type';
 
 class Configs {
   get dbType(): DatabaseType {
-    return process.env.DBLINT_DATABASE_TYPE as DatabaseType;
+    return (process.env.DBLINT_DATABASE_TYPE || DatabaseType.postgres) as DatabaseType;
   }
 
   get dbName(): string {
@@ -28,7 +28,7 @@ class Configs {
   }
 
   get ignoreTables(): string[] {
-    return JSON.parse(process.env.DBLINT_IGNORE_TABLES || '[]');
+    return JSON.parse(process.env.DBLINT_IGNORE_TABLES || '["knex_migrations","knex_migrations_lock"]');
   }
 
   get maxLengthOfIdentifiers(): MaxLengthOfIdentifiers {

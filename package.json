@@ -19,7 +19,7 @@
     "prepare": "husky install",
     "build": "tsdown",
     "bootstrap": "mkdir -p output report",
-    "all:databases": "sh ./scripts/postgres.sh",
+    "all:containers": "sh ./scripts/postgres.sh",
     "all": "rm -rf dist && npm run precommit && npm run build",
     "test": "jest -c jest.config.json",
     "precommit": "npm run bootstrap && npm run lint && npm run test",
