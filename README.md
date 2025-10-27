@@ -5,6 +5,12 @@ A simple database linter.
 [![npm version](https://img.shields.io/npm/v/dblint.svg)](https://www.npmjs.com/package/dblint)
 [![npm Downloads](https://img.shields.io/npm/dm/dblint.svg)](https://www.npmjs.com/package/dblint)
 
+# Use Case
+
+- Install it as a dev dependency and run it as a pre-commit hook in your project or in your CI/CD pipeline.
+- Check for database naming inconsistencies and violations.
+- Get name suggestions for tables, columns, etc.
+
 # Supported Databases
 * PostgreSQL
 
@@ -47,13 +53,15 @@ Source the `.env` file.
 source .env
 ```
 
-Set up the database using docker.
+If you are planning to use Docker then run the following. Else you can use your local database instance.
+
+Refer: [docker-compose.yml](./docker-compose.yml)
 
 ```shell
 docker-compose up -d
 ```
 
-Run migrations.
+After creating the database **dblint_test_db** run the database migration.
 
 ```shell
 npm run db:postgres:migrate
