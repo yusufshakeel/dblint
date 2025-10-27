@@ -7,9 +7,13 @@ async function main() {
   const linter = linterFactory();
   const report = await linter.lint();
 
-  fs.writeFileSync('./report/dblint-report.json', JSON.stringify(report, null, 2));
+  const outputFilePath = process.cwd() + '/report/dblint-report.json';
+
+  fs.writeFileSync(outputFilePath, JSON.stringify(report, null, 2));
 
   CLIReporter.report(report);
+
+  console.log(`\n📁 Report generated at: ${outputFilePath}\n`);
 
   if (report.stats.validations.error !== report.stats.validations.ignoredError) {
     process.exit(1);
