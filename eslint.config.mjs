@@ -64,7 +64,7 @@ export default [
 
             // Core rules (behavior/stylistic)
             strict: ["error", "global"],
-            "no-console": ["error", { allow: ["error", "log", "table"] }],
+            "no-console": ["error", { allow: ["error", "log"] }],
             "new-cap": "off",
             "no-var": "error",
             indent: ["error", 2],
