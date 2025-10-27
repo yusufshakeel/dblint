@@ -28,8 +28,11 @@ export const getLintedColumns = (
   const lintedColumns = table.columns.map((column: Column): LintColumn => {
     const newColumnNameResult = oldToNewColumnNameMap[table.name][column.name];
 
-    const columnValidations = PostgreSQLLintValidator.validateColumnName(
-      column.name, newColumnNameResult.newName
+    const columnValidations = PostgreSQLLintValidator.enrichValidationErrorsWithIgnoreReasons(
+      table.name,
+      PostgreSQLLintValidator.validateColumnName(
+        column.name, newColumnNameResult.newName
+      )
     );
     validations.push(...columnValidations);
 
@@ -65,8 +68,11 @@ export const getLintedConstraints = (
       constraint.type
     );
 
-    const constraintValidation = PostgreSQLLintValidator.validateConstraintName(
-      constraint.name, newConstraintNameResult.newName
+    const constraintValidation = PostgreSQLLintValidator.enrichValidationErrorsWithIgnoreReasons(
+      table.name,
+      PostgreSQLLintValidator.validateConstraintName(
+        constraint.name, newConstraintNameResult.newName
+      )
     );
     validations.push(...constraintValidation);
 
@@ -102,8 +108,11 @@ export const getLintedIndexes = (
       index.type
     );
 
-    const indexValidation = PostgreSQLLintValidator.validateIndexName(
-      index.name, newIndexNameResult.newName
+    const indexValidation = PostgreSQLLintValidator.enrichValidationErrorsWithIgnoreReasons(
+      table.name,
+      PostgreSQLLintValidator.validateIndexName(
+        index.name, newIndexNameResult.newName
+      )
     );
     validations.push(...indexValidation);
 
@@ -140,8 +149,11 @@ export const getLintedTriggers = (
       trigger.events
     );
 
-    const triggerValidations = PostgreSQLLintValidator.validateTriggerName(
-      trigger.name, newTriggerNameResult.newName
+    const triggerValidations = PostgreSQLLintValidator.enrichValidationErrorsWithIgnoreReasons(
+      table.name,
+      PostgreSQLLintValidator.validateTriggerName(
+        trigger.name, newTriggerNameResult.newName
+      )
     );
     validations.push(...triggerValidations);
 
@@ -193,8 +205,11 @@ export const getLintedForeignKeys = (
       referenceTableNewColumNames
     );
 
-    const foreignKeyValidations = PostgreSQLLintValidator.validateForeignKeyName(
-      foreignKey.name, newForeignKeyNameResult.newName
+    const foreignKeyValidations = PostgreSQLLintValidator.enrichValidationErrorsWithIgnoreReasons(
+      table.name,
+      PostgreSQLLintValidator.validateForeignKeyName(
+        foreignKey.name, newForeignKeyNameResult.newName
+      )
     );
     validations.push(...foreignKeyValidations);
 
@@ -224,7 +239,10 @@ export const getLintedViews = (
     const { newName, isCustomIdentifier } = PostgreSQLLintSuggester.suggestViewName(
       name, newTableNames
     );
-    const validations = PostgreSQLLintValidator.validateViewName(name, newName);
+    const validations = PostgreSQLLintValidator.enrichValidationErrorsWithIgnoreReasons(
+      view.name,
+      PostgreSQLLintValidator.validateViewName(name, newName)
+    );
 
     return {
       suggestion: {

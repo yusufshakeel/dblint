@@ -28,6 +28,7 @@ export DBLINT_CUSTOM_CONSTRAINT_NAMES='{}'
 export DBLINT_CUSTOM_INDEX_NAMES='{}'
 export DBLINT_CUSTOM_TRIGGER_NAMES='{}'
 export DBLINT_CUSTOM_FOREIGN_KEY_NAMES='{}'
+export DBLINT_IGNORE_VALIDATION_ERRORS='{}'
 
 # Define cleanup function
 cleanup() {

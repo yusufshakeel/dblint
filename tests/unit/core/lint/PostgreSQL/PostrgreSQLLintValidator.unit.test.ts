@@ -1,5 +1,6 @@
 import PostgreSQLLintValidator from '../../../../../src/core/lint/PostgreSQL/PostgreSQLLintValidator';
 import Configs from '../../../../../src/configs';
+import { Validation, ValidationEntity, ValidationType } from '../../../../../src/types/lint';
 
 describe('PostrgreSQLLintValidator', () => {
   beforeEach(() => {
@@ -17,6 +18,63 @@ describe('PostrgreSQLLintValidator', () => {
   afterEach(() => {
     jest.clearAllMocks();
     jest.restoreAllMocks();
+  });
+
+  describe('enrichValidationErrorsWithIgnoreReasons', () => {
+    it('should enrich validation errors with ignore reasons', () => {
+      jest.spyOn(Configs,'ignoreValidationErrors', 'get').mockReturnValue({
+        history: {
+          'ERROR,TABLE,history': "Won't change the table name."
+        }
+      });
+      const validations: Validation[] = [
+        {
+          type: ValidationType.INFO,
+          entity: ValidationEntity.TABLE,
+          identifier: 'history',
+          message: 'Some message'
+        },
+        {
+          type: ValidationType.ERROR,
+          entity: ValidationEntity.TABLE,
+          identifier: 'history',
+          message: 'Some message'
+        },
+        {
+          type: ValidationType.ERROR,
+          entity: ValidationEntity.FOREIGN_KEY,
+          identifier: 'user_fkey',
+          message: 'Some message'
+        }
+      ];
+      expect(
+        PostgreSQLLintValidator.enrichValidationErrorsWithIgnoreReasons(
+          'history',
+          validations
+        )
+      ).toStrictEqual([
+        {
+          type: ValidationType.INFO,
+          entity: ValidationEntity.TABLE,
+          identifier: 'history',
+          message: 'Some message'
+        },
+        {
+          type: ValidationType.ERROR,
+          entity: ValidationEntity.TABLE,
+          identifier: 'history',
+          message: 'Some message',
+          isIgnored: true,
+          ignoredReason: "Won't change the table name."
+        },
+        {
+          type: ValidationType.ERROR,
+          entity: ValidationEntity.FOREIGN_KEY,
+          identifier: 'user_fkey',
+          message: 'Some message'
+        }
+      ]);
+    });
   });
 
   describe('validateTableName', () => {

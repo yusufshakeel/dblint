@@ -17,6 +17,24 @@ class PostgreSQLLintValidator {
     return validations;
   }
 
+  static enrichValidationErrorsWithIgnoreReasons(
+    tableOrViewName: string,
+    validations: Validation[]
+  ): Validation[] {
+    return validations.map(v => {
+      const key = `${v.type},${v.entity},${v.identifier}`;
+      if (Configs.ignoreValidationErrors[tableOrViewName]
+          && Configs.ignoreValidationErrors[tableOrViewName][key]) {
+        return {
+          ...v,
+          isIgnored: true,
+          ignoredReason: Configs.ignoreValidationErrors[tableOrViewName][key]
+        };
+      }
+      return v;
+    });
+  }
+
   static validateTableName(name: string, newName: string) {
     const validations: Validation[] = [];
     if (name.length > Configs.maxLengthOfIdentifiers.table) {
