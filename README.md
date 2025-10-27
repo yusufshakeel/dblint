@@ -18,6 +18,7 @@ A simple database linter.
 * [Prerequisites](#prerequisites)
 * [Getting Started](#getting-started)
 * [Environment Variables](#environment-variables)
+* [Ignore Validation Errors](#ignore-validation-errors)
 * [License](#license)
 
 # Prerequisites
@@ -193,6 +194,38 @@ export DBLINT_CUSTOM_TRIGGER_NAMES='{}'
 # example: '{"users": {"user_fkey": "user_fkey"}}'
 # default: '{}'
 export DBLINT_CUSTOM_FOREIGN_KEY_NAMES='{}'
+
+# set the ignore validation errors
+# syntax: '{"<current_table_or_view_name>": {"<type>,<entity>,<identifier>": "<ignore_reason>"}}'
+# default: '{}'
+export DBLINT_IGNORE_VALIDATION_ERRORS='{}'
+```
+
+# Ignore Validation Errors
+
+You can ignore validation errors by setting the `DBLINT_IGNORE_VALIDATION_ERRORS` environment variable.
+
+```json
+{
+  "<current_table_or_view_name>": {
+    "<type>,<entity>,<identifier>": "<ignore_reason>"
+  }
+}
+```
+
+Where,
+- Allowed values for `<type>`: `ERROR`, `WARNING`, `INFO`
+- Allowed values for `<entity>`: `TABLE`, `COLUMN`, `CONSTRAINT`, `INDEX`, `FOREIGN_KEY`, `VIEW`, `TRIGGER`
+- Allowed values for `<identifier>`: The value that appears in the dblint report.
+- Allowed values for `<ignore_reason>`: string.
+
+Example:
+```json
+{
+  "history": {
+    "ERROR,TABLE,history": "Ignore the table name change."
+  }
+}
 ```
 
 
