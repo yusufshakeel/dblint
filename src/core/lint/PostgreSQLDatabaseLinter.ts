@@ -17,23 +17,51 @@ import {
 import PostgreSQLDatabaseSuggester from './suggesters/PostgreSQLDatabaseSuggester';
 import PostgreSQLDatabaseValidator from './validators/PostgreSQLDatabaseValidator';
 import { getSchema } from '../database/schema/schema';
+import { Linter } from './Linter';
 
-class PostgreSQLDatabaseLinter {
-  static async lint(): Promise<Lint> {
+/**
+ * Represents a mapping of table columns where each key corresponds to the original column name
+ * and the value represents the new table name and whether it is a custom identifier.
+ *
+ * Keys:
+ * - The key is a string representing the original name of the table.
+ *
+ * Values:
+ * - An object with the following properties:
+ *   - `newName`: A string that specifies the new name of the table.
+ *   - `isCustomIdentifier`: A boolean indicating whether the new table name is a custom identifier.
+ */
+type TableMapType = Record<string, { newName: string, isCustomIdentifier: boolean }>;
+
+/**
+ * Represents a structured map configuration used to manage column transformations.
+ *
+ * The `ColumnMapType` is a nested structure where:
+ * - The first level keys are strings that typically represent tables.
+ * - The second level keys represent specific columns within those tables.
+ * - The values on the deepest level are objects containing properties for how
+ *   each column should be transformed or processed.
+ *
+ * Structure:
+ * - First level keys: A string identifying the old table name.
+ * - Second level keys: A string identifying the old column name.
+ * - Values: An object containing metadata for the column transformation:
+ *   - `newName`: A string specifying the new name for the column.
+ *   - `isCustomIdentifier`: A boolean indicating if the new column name is a custom identifier.
+ */
+type ColumnMapType =
+    Record<string, Record<string, { newName: string, isCustomIdentifier: boolean }>>;
+
+class PostgreSQLDatabaseLinter implements Linter {
+  private oldToNewTableNameMap: TableMapType = {};
+  private oldToNewColumnNameMap: ColumnMapType = {};
+
+  async lint(): Promise<Lint> {
     const schema = await getSchema();
-
-    const oldToNewTableNameMap: Record<
-          string,
-          { newName: string, isCustomIdentifier: boolean }
-      > = {};
-    const oldToNewColumnNameMap: Record<
-          string,
-          Record<string, { newName: string, isCustomIdentifier: boolean }>
-      > = {};
 
     schema.tables.forEach((table: Table) => {
       const newTableNameResult = PostgreSQLDatabaseSuggester.suggestTableName(table.name);
-      oldToNewTableNameMap[table.name] = {
+      this.oldToNewTableNameMap[table.name] = {
         newName: newTableNameResult.newName,
         isCustomIdentifier: newTableNameResult.isCustomIdentifier
       };
@@ -42,8 +70,8 @@ class PostgreSQLDatabaseLinter {
         const newColumnNameResult = PostgreSQLDatabaseSuggester.suggestColumnName(
           table.name, column.name
         );
-        oldToNewColumnNameMap[table.name] = {
-          ...oldToNewColumnNameMap[table.name],
+        this.oldToNewColumnNameMap[table.name] = {
+          ...this.oldToNewColumnNameMap[table.name],
           [column.name]: {
             newName: newColumnNameResult.newName,
             isCustomIdentifier: newColumnNameResult.isCustomIdentifier
@@ -53,18 +81,16 @@ class PostgreSQLDatabaseLinter {
     });
 
     const lintedTables = schema.tables.map((table: Table): LintTable => {
-      const newTableNameResult = oldToNewTableNameMap[table.name];
-      const validations = newTableNameResult.isCustomIdentifier
-        ? []
-        : PostgreSQLDatabaseValidator.validateTableName(table.name, newTableNameResult.newName);
+      const newTableNameResult = this.oldToNewTableNameMap[table.name];
+      const validations = PostgreSQLDatabaseValidator.validateTableName(
+        table.name, newTableNameResult.newName
+      );
 
       const lintedColumns = table.columns.map((column: Column): LintColumn => {
-        const newColumnNameResult = oldToNewColumnNameMap[table.name][column.name];
-        const columnValidations = newColumnNameResult.isCustomIdentifier
-          ? []
-          : PostgreSQLDatabaseValidator.validateColumnName(
-            column.name, newColumnNameResult.newName
-          );
+        const newColumnNameResult = this.oldToNewColumnNameMap[table.name][column.name];
+        const columnValidations = PostgreSQLDatabaseValidator.validateColumnName(
+          column.name, newColumnNameResult.newName
+        );
 
         validations.push(...columnValidations);
 
@@ -80,7 +106,7 @@ class PostgreSQLDatabaseLinter {
 
       const lintedConstraints = table.constraints.map((constraint: Constraint): LintConstraint => {
         const newColumnNames = constraint.columns.map(
-          columnName => oldToNewColumnNameMap[table.name][columnName].newName
+          columnName => this.oldToNewColumnNameMap[table.name][columnName].newName
         );
         const newConstraintNameResult = PostgreSQLDatabaseSuggester.suggestConstraintName(
           table.name,
@@ -90,11 +116,9 @@ class PostgreSQLDatabaseLinter {
           constraint.type
         );
 
-        const constraintValidation = newConstraintNameResult.isCustomIdentifier
-          ? []
-          : PostgreSQLDatabaseValidator.validateConstraintName(
-            constraint.name, newConstraintNameResult.newName
-          );
+        const constraintValidation = PostgreSQLDatabaseValidator.validateConstraintName(
+          constraint.name, newConstraintNameResult.newName
+        );
 
         validations.push(...constraintValidation);
 
@@ -110,7 +134,7 @@ class PostgreSQLDatabaseLinter {
 
       const lintIndexes = table.indexes.map((index: Index): LintIndex => {
         const newColumnNames = index.columns.map(
-          columnName => oldToNewColumnNameMap[table.name][columnName].newName
+          columnName => this.oldToNewColumnNameMap[table.name][columnName].newName
         );
         const newIndexNameResult = PostgreSQLDatabaseSuggester.suggestIndexName(
           table.name,
@@ -120,9 +144,9 @@ class PostgreSQLDatabaseLinter {
           index.type
         );
 
-        const indexValidation = newIndexNameResult.isCustomIdentifier
-          ? []
-          : PostgreSQLDatabaseValidator.validateIndexName(index.name, newIndexNameResult.newName);
+        const indexValidation = PostgreSQLDatabaseValidator.validateIndexName(
+          index.name, newIndexNameResult.newName
+        );
 
         validations.push(...indexValidation);
 
@@ -138,7 +162,7 @@ class PostgreSQLDatabaseLinter {
 
       const lintTriggers = table.triggers.map((trigger: Trigger): LintTrigger => {
         const newColumnNames = trigger.columns.map(
-          columnName => oldToNewColumnNameMap[table.name][columnName].newName
+          columnName => this.oldToNewColumnNameMap[table.name][columnName].newName
         );
         const newTriggerNameResult = PostgreSQLDatabaseSuggester.suggestTriggerName(
           table.name,
@@ -149,11 +173,9 @@ class PostgreSQLDatabaseLinter {
           trigger.events
         );
 
-        const triggerValidations = newTriggerNameResult.isCustomIdentifier
-          ? []
-          : PostgreSQLDatabaseValidator.validateTriggerName(
-            trigger.name, newTriggerNameResult.newName
-          );
+        const triggerValidations = PostgreSQLDatabaseValidator.validateTriggerName(
+          trigger.name, newTriggerNameResult.newName
+        );
 
         validations.push(...triggerValidations);
 
@@ -169,12 +191,12 @@ class PostgreSQLDatabaseLinter {
 
       const lintForeignKeys = table.foreignKeys.map((foreignKey: ForeignKey): LintForeignKey => {
         const newColumnNames = foreignKey.columns.map(
-          columnName => oldToNewColumnNameMap[table.name][columnName].newName
+          columnName => this.oldToNewColumnNameMap[table.name][columnName].newName
         );
         const referenceTableNewColumNames = foreignKey.referencedColumns.map(
-          columnName => oldToNewColumnNameMap[foreignKey.referencedTable][columnName].newName
+          columnName => this.oldToNewColumnNameMap[foreignKey.referencedTable][columnName].newName
         );
-        const referenceTableNewName = oldToNewTableNameMap[foreignKey.referencedTable].newName;
+        const referenceTableNewName = this.oldToNewTableNameMap[foreignKey.referencedTable].newName;
         const newForeignKeyNameResult = PostgreSQLDatabaseSuggester.suggestForeignKeyName(
           table.name,
           newTableNameResult.newName,
@@ -184,11 +206,9 @@ class PostgreSQLDatabaseLinter {
           referenceTableNewColumNames
         );
 
-        const foreignKeyValidations = newForeignKeyNameResult.isCustomIdentifier
-          ? []
-          : PostgreSQLDatabaseValidator.validateForeignKeyName(
-            foreignKey.name, newForeignKeyNameResult.newName
-          );
+        const foreignKeyValidations = PostgreSQLDatabaseValidator.validateForeignKeyName(
+          foreignKey.name, newForeignKeyNameResult.newName
+        );
 
         validations.push(...foreignKeyValidations);
 
@@ -221,13 +241,11 @@ class PostgreSQLDatabaseLinter {
     const lintedViews = schema.views.map((view: View): LintView => {
       const { name, tableNames } = view;
       const newTableNames = tableNames.map(
-        tableName => oldToNewTableNameMap[tableName].newName
+        tableName => this.oldToNewTableNameMap[tableName].newName
       );
       const { newName, isCustomIdentifier } =
-          PostgreSQLDatabaseSuggester.suggestViewName(name, newTableNames);
-      const validations = isCustomIdentifier
-        ? []
-        : PostgreSQLDatabaseValidator.validateViewName(name, newName);
+            PostgreSQLDatabaseSuggester.suggestViewName(name, newTableNames);
+      const validations = PostgreSQLDatabaseValidator.validateViewName(name, newName);
       return {
         suggestion: {
           newName,
