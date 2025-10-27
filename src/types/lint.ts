@@ -21,6 +21,14 @@ export type CaseTypeOfIdentifiers = {
     trigger: CaseType,
 }
 
+export type OldToNewTableNameMapType = Record<
+    string, { newName: string, isCustomIdentifier: boolean }
+>;
+
+export type OldToNewColumnNameMapType = Record<
+    string, Record<string, { newName: string, isCustomIdentifier: boolean }>
+>;
+
 export enum ValidationType {
     INFO = 'INFO',
     WARNING = 'WARNING',

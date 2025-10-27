@@ -1,7 +1,7 @@
-import PostgreSQLDatabaseValidator from '../../../../../src/core/lint/validators/PostgreSQLDatabaseValidator';
+import PostgreSQLLintValidator from '../../../../../src/core/lint/PostgreSQL/PostgreSQLLintValidator';
 import Configs from '../../../../../src/configs';
 
-describe('PostrgreSQLDatabaseValidator', () => {
+describe('PostrgreSQLLintValidator', () => {
   beforeEach(() => {
     jest.spyOn(Configs, 'maxLengthOfIdentifiers', 'get').mockReturnValue({
       table: 15,
@@ -21,7 +21,7 @@ describe('PostrgreSQLDatabaseValidator', () => {
 
   describe('validateTableName', () => {
     it('should return validations', () => {
-      expect(PostgreSQLDatabaseValidator.validateTableName('user', 'users')).toStrictEqual([
+      expect(PostgreSQLLintValidator.validateTableName('user', 'users')).toStrictEqual([
         {
           entity: 'TABLE',
           identifier: 'user',
@@ -32,11 +32,11 @@ describe('PostrgreSQLDatabaseValidator', () => {
     });
 
     it('should return empty validations when there is no issue', () => {
-      expect(PostgreSQLDatabaseValidator.validateTableName('users', 'users')).toStrictEqual([]);
+      expect(PostgreSQLLintValidator.validateTableName('users', 'users')).toStrictEqual([]);
     });
 
     it('should return validations when name is lengthy', () => {
-      expect(PostgreSQLDatabaseValidator.validateTableName('VeryLengthyTableName', 'VeryLengthyTableNames')).toStrictEqual([
+      expect(PostgreSQLLintValidator.validateTableName('VeryLengthyTableName', 'VeryLengthyTableNames')).toStrictEqual([
         {
           entity: 'TABLE',
           identifier: 'VeryLengthyTableName',
@@ -61,7 +61,7 @@ describe('PostrgreSQLDatabaseValidator', () => {
 
   describe('validateViewName', () => {
     it('should return validations', () => {
-      expect(PostgreSQLDatabaseValidator.validateViewName('user', 'v_users')).toStrictEqual([
+      expect(PostgreSQLLintValidator.validateViewName('user', 'v_users')).toStrictEqual([
         {
           entity: 'VIEW',
           identifier: 'user',
@@ -72,11 +72,11 @@ describe('PostrgreSQLDatabaseValidator', () => {
     });
 
     it('should return empty validations when there is no issue', () => {
-      expect(PostgreSQLDatabaseValidator.validateViewName('v_users', 'v_users')).toStrictEqual([]);
+      expect(PostgreSQLLintValidator.validateViewName('v_users', 'v_users')).toStrictEqual([]);
     });
 
     it('should return validations when name is lengthy', () => {
-      expect(PostgreSQLDatabaseValidator.validateViewName('v_VeryLengthyViewName', 'v_VeryLengthyViewName')).toStrictEqual([
+      expect(PostgreSQLLintValidator.validateViewName('v_VeryLengthyViewName', 'v_VeryLengthyViewName')).toStrictEqual([
         {
           entity: 'VIEW',
           identifier: 'v_VeryLengthyViewName',
@@ -95,7 +95,7 @@ describe('PostrgreSQLDatabaseValidator', () => {
 
   describe('validateColumnName', () => {
     it('should return validations', () => {
-      expect(PostgreSQLDatabaseValidator.validateColumnName('id', 'Id')).toStrictEqual([
+      expect(PostgreSQLLintValidator.validateColumnName('id', 'Id')).toStrictEqual([
         {
           entity: 'COLUMN',
           identifier: 'id',
@@ -106,11 +106,11 @@ describe('PostrgreSQLDatabaseValidator', () => {
     });
 
     it('should return empty validations when there is no issue', () => {
-      expect(PostgreSQLDatabaseValidator.validateColumnName('id', 'id')).toStrictEqual([]);
+      expect(PostgreSQLLintValidator.validateColumnName('id', 'id')).toStrictEqual([]);
     });
 
     it('should return validations when name is lengthy', () => {
-      expect(PostgreSQLDatabaseValidator.validateColumnName('√eryLengthyColumnName', 'VeryLengthyColumnName')).toStrictEqual([
+      expect(PostgreSQLLintValidator.validateColumnName('√eryLengthyColumnName', 'VeryLengthyColumnName')).toStrictEqual([
         {
           entity: 'COLUMN',
           identifier: '√eryLengthyColumnName',
@@ -135,7 +135,7 @@ describe('PostrgreSQLDatabaseValidator', () => {
 
   describe('validateConstraintName', () => {
     it('should return validations', () => {
-      expect(PostgreSQLDatabaseValidator.validateConstraintName('id_pkey', 'pk_users_id')).toStrictEqual([
+      expect(PostgreSQLLintValidator.validateConstraintName('id_pkey', 'pk_users_id')).toStrictEqual([
         {
           entity: 'CONSTRAINT',
           identifier: 'id_pkey',
@@ -146,11 +146,11 @@ describe('PostrgreSQLDatabaseValidator', () => {
     });
 
     it('should return empty validations when there is no issue', () => {
-      expect(PostgreSQLDatabaseValidator.validateConstraintName('pkey_users_id', 'pkey_users_id')).toStrictEqual([]);
+      expect(PostgreSQLLintValidator.validateConstraintName('pkey_users_id', 'pkey_users_id')).toStrictEqual([]);
     });
 
     it('should return validations when name is lengthy', () => {
-      expect(PostgreSQLDatabaseValidator.validateConstraintName('√eryLengthyColumnName', 'un_users_a_very_length_column_name')).toStrictEqual([
+      expect(PostgreSQLLintValidator.validateConstraintName('√eryLengthyColumnName', 'un_users_a_very_length_column_name')).toStrictEqual([
         {
           entity: 'CONSTRAINT',
           identifier: '√eryLengthyColumnName',
@@ -175,7 +175,7 @@ describe('PostrgreSQLDatabaseValidator', () => {
 
   describe('validateIndexName', () => {
     it('should return validations', () => {
-      expect(PostgreSQLDatabaseValidator.validateIndexName('index_id', 'idx_id')).toStrictEqual([
+      expect(PostgreSQLLintValidator.validateIndexName('index_id', 'idx_id')).toStrictEqual([
         {
           entity: 'INDEX',
           identifier: 'index_id',
@@ -186,11 +186,11 @@ describe('PostrgreSQLDatabaseValidator', () => {
     });
 
     it('should return empty validations when there is no issue', () => {
-      expect(PostgreSQLDatabaseValidator.validateIndexName('uidx_id', 'uidx_id')).toStrictEqual([]);
+      expect(PostgreSQLLintValidator.validateIndexName('uidx_id', 'uidx_id')).toStrictEqual([]);
     });
 
     it('should return validations when name is lengthy', () => {
-      expect(PostgreSQLDatabaseValidator.validateIndexName('idx√eryLengthyColumnName', 'idx_users_a_very_length_column_name')).toStrictEqual([
+      expect(PostgreSQLLintValidator.validateIndexName('idx√eryLengthyColumnName', 'idx_users_a_very_length_column_name')).toStrictEqual([
         {
           entity: 'INDEX',
           identifier: 'idx√eryLengthyColumnName',
@@ -215,7 +215,7 @@ describe('PostrgreSQLDatabaseValidator', () => {
 
   describe('validateTriggerName', () => {
     it('should return validations', () => {
-      expect(PostgreSQLDatabaseValidator.validateTriggerName('trigger_foo', 'trg_foo')).toStrictEqual([
+      expect(PostgreSQLLintValidator.validateTriggerName('trigger_foo', 'trg_foo')).toStrictEqual([
         {
           entity: 'TRIGGER',
           identifier: 'trigger_foo',
@@ -226,11 +226,11 @@ describe('PostrgreSQLDatabaseValidator', () => {
     });
 
     it('should return empty validations when there is no issue', () => {
-      expect(PostgreSQLDatabaseValidator.validateTriggerName('trg_foo', 'trg_foo')).toStrictEqual([]);
+      expect(PostgreSQLLintValidator.validateTriggerName('trg_foo', 'trg_foo')).toStrictEqual([]);
     });
 
     it('should return validations when name is lengthy', () => {
-      expect(PostgreSQLDatabaseValidator.validateTriggerName('trg_√eryLengthyColumnName', 'trg_users_a_very_length_column_name')).toStrictEqual([
+      expect(PostgreSQLLintValidator.validateTriggerName('trg_√eryLengthyColumnName', 'trg_users_a_very_length_column_name')).toStrictEqual([
         {
           entity: 'TRIGGER',
           identifier: 'trg_√eryLengthyColumnName',
@@ -255,7 +255,7 @@ describe('PostrgreSQLDatabaseValidator', () => {
 
   describe('validateForeignKeyName', () => {
     it('should return validations', () => {
-      expect(PostgreSQLDatabaseValidator.validateForeignKeyName('foo', 'fk_foo')).toStrictEqual([
+      expect(PostgreSQLLintValidator.validateForeignKeyName('foo', 'fk_foo')).toStrictEqual([
         {
           entity: 'FOREIGN_KEY',
           identifier: 'foo',
@@ -266,11 +266,11 @@ describe('PostrgreSQLDatabaseValidator', () => {
     });
 
     it('should return empty validations when there is no issue', () => {
-      expect(PostgreSQLDatabaseValidator.validateForeignKeyName('fk_foo', 'fk_foo')).toStrictEqual([]);
+      expect(PostgreSQLLintValidator.validateForeignKeyName('fk_foo', 'fk_foo')).toStrictEqual([]);
     });
 
     it('should return validations when name is lengthy', () => {
-      expect(PostgreSQLDatabaseValidator.validateForeignKeyName('fk_√eryLengthyColumnName', 'fk_users_a_very_length_column_name')).toStrictEqual([
+      expect(PostgreSQLLintValidator.validateForeignKeyName('fk_√eryLengthyColumnName', 'fk_users_a_very_length_column_name')).toStrictEqual([
         {
           entity: 'FOREIGN_KEY',
           identifier: 'fk_√eryLengthyColumnName',

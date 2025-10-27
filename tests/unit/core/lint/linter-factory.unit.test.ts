@@ -1,7 +1,7 @@
 import Configs from '../../../../src/configs';
 import { DatabaseType } from '../../../../src/types/database';
 import linterFactory from '../../../../src/core/lint/linter-factory';
-import PostgreSQLDatabaseLinter from '../../../../src/core/lint/PostgreSQLDatabaseLinter';
+import PostgreSQLLinter from '../../../../src/core/lint/PostgreSQL/PostgreSQLLinter';
 
 describe('LinterFactory', () => {
   afterEach(() => {
@@ -17,6 +17,6 @@ describe('LinterFactory', () => {
   it('should return postgres linter class when database type is postgres', () => {
     jest.spyOn(Configs, 'dbType', 'get').mockReturnValue(DatabaseType.postgres);
     const linter = linterFactory();
-    expect(linter).toBeInstanceOf(PostgreSQLDatabaseLinter);
+    expect(linter).toBeInstanceOf(PostgreSQLLinter);
   });
 });

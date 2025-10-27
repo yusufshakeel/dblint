@@ -1,7 +1,7 @@
 import { Validation, ValidationEntity, ValidationType } from '../../../types/lint';
 import Configs from '../../../configs';
 
-class PostgreSQLDatabaseValidator {
+class PostgreSQLLintValidator {
   static validateTableName(name: string, newName: string) {
     const validations: Validation[] = [];
     if (name.length > Configs.maxLengthOfIdentifiers.table) {
@@ -206,4 +206,4 @@ class PostgreSQLDatabaseValidator {
   }
 }
 
-export default PostgreSQLDatabaseValidator;
+export default PostgreSQLLintValidator;

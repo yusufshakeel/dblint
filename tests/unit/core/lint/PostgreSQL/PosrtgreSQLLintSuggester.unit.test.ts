@@ -1,9 +1,9 @@
 import Configs from '../../../../../src/configs';
-import PostgreSQLDatabaseSuggester from '../../../../../src/core/lint/suggesters/PostgreSQLDatabaseSuggester';
+import PostgreSQLLintSuggester from '../../../../../src/core/lint/PostgreSQL/PostgreSQLLintSuggester';
 import { CaseType } from '../../../../../src/types/case-type';
 import { ConstraintType, IndexType, TriggerEvent, TriggerTiming } from '../../../../../src/types/database';
 
-describe('PosrtgreSQLDatabaseSuggester', () => {
+describe('PosrtgreSQLLintSuggester', () => {
   beforeEach(() => {
     jest.spyOn(Configs, 'customTableNames', 'get').mockReturnValue({
       history: 'history'
@@ -44,14 +44,14 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
 
   describe('suggestTableName', () => {
     it('should use custom name when available', () => {
-      expect(PostgreSQLDatabaseSuggester.suggestTableName('history')).toStrictEqual({
+      expect(PostgreSQLLintSuggester.suggestTableName('history')).toStrictEqual({
         isCustomIdentifier: true,
         newName: 'history'
       });
     });
 
     it('should return suggestion', () => {
-      expect(PostgreSQLDatabaseSuggester.suggestTableName('users')).toStrictEqual({
+      expect(PostgreSQLLintSuggester.suggestTableName('users')).toStrictEqual({
         isCustomIdentifier: false,
         newName: 'users'
       });
@@ -60,14 +60,14 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
 
   describe('suggestViewName', () => {
     it('should use custom name when available', () => {
-      expect(PostgreSQLDatabaseSuggester.suggestViewName('v_history', ['table_foo', 'table_bar'])).toStrictEqual({
+      expect(PostgreSQLLintSuggester.suggestViewName('v_history', ['table_foo', 'table_bar'])).toStrictEqual({
         isCustomIdentifier: true,
         newName: 'v_history'
       });
     });
 
     it('should return suggestion', () => {
-      expect(PostgreSQLDatabaseSuggester.suggestViewName('buzz', ['table_foo', 'table_bar'])).toStrictEqual({
+      expect(PostgreSQLLintSuggester.suggestViewName('buzz', ['table_foo', 'table_bar'])).toStrictEqual({
         isCustomIdentifier: false,
         newName: 'v_table_foo_table_bar'
       });
@@ -76,14 +76,14 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
 
   describe('suggestColumnName', () => {
     it('should use custom name when available', () => {
-      expect(PostgreSQLDatabaseSuggester.suggestColumnName('history', 'bar')).toStrictEqual({
+      expect(PostgreSQLLintSuggester.suggestColumnName('history', 'bar')).toStrictEqual({
         isCustomIdentifier: true,
         newName: 'bar'
       });
     });
 
     it('should return suggestion', () => {
-      expect(PostgreSQLDatabaseSuggester.suggestColumnName('fizz', 'foo')).toStrictEqual({
+      expect(PostgreSQLLintSuggester.suggestColumnName('fizz', 'foo')).toStrictEqual({
         isCustomIdentifier: false,
         newName: 'foo'
       });
@@ -93,7 +93,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
   describe('suggestConstraintName', () => {
     it('should use custom name when available', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestConstraintName(
+        PostgreSQLLintSuggester.suggestConstraintName(
           'history',
           'histories',
           'foo',
@@ -108,7 +108,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
 
     it('should return suggestion - primary key', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestConstraintName(
+        PostgreSQLLintSuggester.suggestConstraintName(
           'user',
           'users',
           'user_pkey',
@@ -123,7 +123,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
 
     it('should return suggestion - unique', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestConstraintName(
+        PostgreSQLLintSuggester.suggestConstraintName(
           'user',
           'users',
           'user_constraint',
@@ -138,7 +138,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
 
     it('should return suggestion - check', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestConstraintName(
+        PostgreSQLLintSuggester.suggestConstraintName(
           'user',
           'users',
           'user_constraint',
@@ -153,7 +153,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
 
     it('should return suggestion - exclude', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestConstraintName(
+        PostgreSQLLintSuggester.suggestConstraintName(
           'user',
           'users',
           'user_constraint',
@@ -168,7 +168,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
 
     it('should return suggestion - constraint trigger', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestConstraintName(
+        PostgreSQLLintSuggester.suggestConstraintName(
           'user',
           'users',
           'user_constraint',
@@ -185,7 +185,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
   describe('suggestIndexName', () => {
     it('should use custom name when available', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestIndexName(
+        PostgreSQLLintSuggester.suggestIndexName(
           'history',
           'histories',
           'foo',
@@ -200,7 +200,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
 
     it('should return suggestion - regular index', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestIndexName(
+        PostgreSQLLintSuggester.suggestIndexName(
           'user',
           'users',
           'user_constraint',
@@ -215,7 +215,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
 
     it('should return suggestion - unique index', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestIndexName(
+        PostgreSQLLintSuggester.suggestIndexName(
           'user',
           'users',
           'user_constraint',
@@ -230,7 +230,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
 
     it('should return suggestion - unique partial index', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestIndexName(
+        PostgreSQLLintSuggester.suggestIndexName(
           'user',
           'users',
           'user_constraint',
@@ -245,7 +245,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
 
     it('should return suggestion - partial index', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestIndexName(
+        PostgreSQLLintSuggester.suggestIndexName(
           'user',
           'users',
           'user_constraint',
@@ -262,7 +262,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
   describe('suggestTriggerName', () => {
     it('should use custom name when available', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestTriggerName(
+        PostgreSQLLintSuggester.suggestTriggerName(
           'history',
           'histories',
           'foo',
@@ -278,7 +278,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
 
     it('should return suggestion', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestTriggerName(
+        PostgreSQLLintSuggester.suggestTriggerName(
           'user',
           'users',
           'user_trigger',
@@ -296,7 +296,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
   describe('suggestForeignKeyName', () => {
     it('should use custom name when available', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestForeignKeyName(
+        PostgreSQLLintSuggester.suggestForeignKeyName(
           'history',
           'histories',
           'foo',
@@ -312,7 +312,7 @@ describe('PosrtgreSQLDatabaseSuggester', () => {
 
     it('should return suggestion', () => {
       expect(
-        PostgreSQLDatabaseSuggester.suggestForeignKeyName(
+        PostgreSQLLintSuggester.suggestForeignKeyName(
           'user',
           'users',
           'user_fk',
