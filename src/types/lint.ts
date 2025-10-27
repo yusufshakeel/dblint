@@ -47,38 +47,34 @@ export type Validation = {
 }
 
 export type LintSuggestion = {
-    name: string,
     newName: string,
     isCustomIdentifier: boolean,
+    isChangeNeeded: boolean,
 }
 
-export type LintForeignKey = {
+export type LintForeignKey = ForeignKey & {
     suggestion: LintSuggestion,
-    foreignKey: ForeignKey
 }
 
-export type LintTrigger = {
+export type LintTrigger = Trigger & {
     suggestion: LintSuggestion,
-    trigger: Trigger
 }
 
-export type LintIndex = {
+export type LintIndex = Index & {
     suggestion: LintSuggestion,
-    index: Index
 }
 
-export type LintConstraint = {
+export type LintConstraint = Constraint & {
     suggestion: LintSuggestion,
-    constraint: Constraint
 }
 
-export type LintColumn = {
+export type LintColumn = Column & {
     suggestion: LintSuggestion,
-    column: Column
 }
 
 export type LintTable = {
     suggestion: LintSuggestion,
+    name: string,
     columns: LintColumn[],
     constraints: LintConstraint[],
     foreignKeys: LintForeignKey[],
@@ -87,18 +83,12 @@ export type LintTable = {
     validations: Validation[]
 }
 
-export type LintView = {
+export type LintView = View & {
     suggestion: LintSuggestion,
-    view: View,
     validations: Validation[]
 }
 
-export type LintedSchema = {
+export type Lint = {
     tables: LintTable[],
     views: LintView[],
-}
-
-export type Lint = {
-    schema: Schema,
-    lintedSchema: LintedSchema,
 }
