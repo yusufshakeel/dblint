@@ -20,6 +20,7 @@
     "src/**/*.{ts,tsx}",
     "!src/index.ts",
     "!src/configs/index.ts",
+    "!src/core/reporter/**/*.{ts,tsx}",
     "!tsdown.config.ts",
     "!**/coverage/**",
     "!**/dist/**",

@@ -1,6 +1,6 @@
 {
   "name": "dblint",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A simple database linter.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -8,7 +8,6 @@
   "files": [
     "dist"
   ],
-  "type": "module",
   "bin": {
     "dblint": "./dist/index.js"
   },
@@ -20,6 +19,7 @@
     "prepare": "husky install",
     "build": "tsdown",
     "bootstrap": "mkdir -p output report",
+    "all:containers": "sh ./scripts/postgres.sh",
     "all": "rm -rf dist && npm run precommit && npm run build",
     "test": "jest -c jest.config.json",
     "precommit": "npm run bootstrap && npm run lint && npm run test",
@@ -47,12 +47,15 @@
   },
   "homepage": "https://github.com/yusufshakeel/dblint#readme",
   "dependencies": {
+    "cli-table3": "^0.6.5",
     "knex": "^3.1.0",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "pluralize": "^8.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
     "@types/jest": "^30.0.0",
+    "@types/pluralize": "^0.0.33",
     "eslint": "^9.37.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jest": "^29.0.1",

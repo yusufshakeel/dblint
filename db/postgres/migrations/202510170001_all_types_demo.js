@@ -46,7 +46,7 @@ exports.up = async function up(knex) {
     t.string('username', 32).notNullable();
     t.specificType('email', 'citext').notNullable();
     t.text('display_name');
-    t.specificType('fixed_char', 'char(5)').notNullable().defaultTo('abc  ');
+    t.specificType('fixed_char', 'char(5)').notNullable().defaultTo('abcde');
 
     // Numbers
     t.specificType('tiny_count', 'smallint').notNullable().defaultTo(0);

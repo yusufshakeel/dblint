@@ -21,12 +21,18 @@ const caseConverter = (
   // Transform tokens while retaining acronyms
   const newIdentifier = tokens
     .map((token, index) => {
-      if (token === token.toUpperCase() && token.length > 1) return token; // preserve acronyms
-      if (index === 0 && caseType === CaseType.CAMEL_CASE)
+      if (caseType === CaseType.SNAKE_CASE) {
+        return token.toLowerCase();
+      }
+      if (token === token.toUpperCase() && token.length > 1) {
+        return token; // preserve acronyms
+      }
+      if (index === 0 && caseType === CaseType.CAMEL_CASE) {
         return token.charAt(0).toLowerCase() + token.slice(1);
+      }
       return token.charAt(0).toUpperCase() + token.slice(1).toLowerCase();
     })
-    .join('');
+    .join(caseType === CaseType.SNAKE_CASE ? '_' : '');
 
   return { tokens, newIdentifier };
 };
