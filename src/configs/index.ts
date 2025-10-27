@@ -84,8 +84,8 @@ class Configs {
     return JSON.parse(process.env.DBLINT_CUSTOM_TRIGGER_NAMES || '{}');
   }
 
-  get customForeignNames(): Record<string, Record<string, string>> {
-    return JSON.parse(process.env.DBLINT_CUSTOM_FOREIGN_NAMES || '{}');
+  get customForeignKeyNames(): Record<string, Record<string, string>> {
+    return JSON.parse(process.env.DBLINT_CUSTOM_FOREIGN_KEY_NAMES || '{}');
   }
 }
 

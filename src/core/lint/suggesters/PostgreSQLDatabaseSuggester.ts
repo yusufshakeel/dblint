@@ -31,7 +31,8 @@ class PostgreSQLDatabaseSuggester {
     tableName: string,
     columnName: string
   ): { newName: string, isCustomIdentifier: boolean } {
-    if (Configs.customColumnNames[tableName] && Configs.customColumnNames[tableName][columnName]) {
+    if (Configs.customColumnNames[tableName]
+        && Configs.customColumnNames[tableName][columnName]) {
       return {
         newName: Configs.customColumnNames[tableName][columnName],
         isCustomIdentifier: true
@@ -49,7 +50,7 @@ class PostgreSQLDatabaseSuggester {
     constraintType: ConstraintType
   ): { newName: string, isCustomIdentifier: boolean } {
     if (Configs.customConstraintNames[tableName]
-            && Configs.customConstraintNames[tableName][constraintName]) {
+        && Configs.customConstraintNames[tableName][constraintName]) {
       return {
         newName: Configs.customConstraintNames[tableName][constraintName],
         isCustomIdentifier: true
@@ -71,7 +72,8 @@ class PostgreSQLDatabaseSuggester {
     newColumnNames: string[],
     indexType: IndexType
   ): { newName: string, isCustomIdentifier: boolean } {
-    if (Configs.customIndexNames[tableName] && Configs.customIndexNames[tableName][indexName]) {
+    if (Configs.customIndexNames[tableName]
+        && Configs.customIndexNames[tableName][indexName]) {
       return {
         newName: Configs.customIndexNames[tableName][indexName],
         isCustomIdentifier: true
@@ -95,7 +97,7 @@ class PostgreSQLDatabaseSuggester {
     triggerEvents: TriggerEvent[]
   ): { newName: string, isCustomIdentifier: boolean } {
     if (Configs.customTriggerNames[tableName]
-            && Configs.customTriggerNames[tableName][triggerName]) {
+        && Configs.customTriggerNames[tableName][triggerName]) {
       return {
         newName: Configs.customTriggerNames[tableName][triggerName],
         isCustomIdentifier: true
@@ -120,10 +122,10 @@ class PostgreSQLDatabaseSuggester {
     referenceTableNewName: string,
     referenceTableNewColumNames: string[]
   ): { newName: string, isCustomIdentifier: boolean } {
-    if (Configs.customForeignNames[tableName]
-            && Configs.customForeignNames[tableName][foreignKeyName]) {
+    if (Configs.customForeignKeyNames[tableName]
+        && Configs.customForeignKeyNames[tableName][foreignKeyName]) {
       return {
-        newName: Configs.customForeignNames[tableName][foreignKeyName],
+        newName: Configs.customForeignKeyNames[tableName][foreignKeyName],
         isCustomIdentifier: true
       };
     }
