@@ -4,10 +4,20 @@ import linterFactory from './core/lint/linter-factory';
 import CLIReporter from './core/reporter/cli-reporter';
 
 async function main() {
+  const reportDir = process.cwd() + '/report';
+  const outputFileName = 'dblint-report.json';
+
+  if (!fs.existsSync(reportDir)) {
+    console.log('Report directory does not exist. Creating...');
+    console.log('Directory path:', reportDir);
+    fs.mkdirSync(reportDir, { recursive: true });
+    console.log('Directory created successfully.');
+  }
+
   const linter = linterFactory();
   const report = await linter.lint();
 
-  const outputFilePath = process.cwd() + '/report/dblint-report.json';
+  const outputFilePath = `${reportDir}/${outputFileName}`;
 
   fs.writeFileSync(outputFilePath, JSON.stringify(report, null, 2));
 
