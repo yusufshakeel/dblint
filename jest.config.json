@@ -19,6 +19,7 @@
   "collectCoverageFrom": [
     "src/**/*.{ts,tsx}",
     "!src/index.ts",
+    "!src/dblint.ts",
     "!src/configs/index.ts",
     "!src/core/reporter/**/*.{ts,tsx}",
     "!tsdown.config.ts",

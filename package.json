@@ -9,7 +9,7 @@
     "dist"
   ],
   "bin": {
-    "dblint": "./dist/index.js"
+    "dblint": "./dist/dblint.js"
   },
   "engines": {
     "node": ">=18.0.0"
