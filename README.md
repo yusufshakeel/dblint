@@ -11,6 +11,19 @@ A simple database linter.
 - Check for database naming inconsistencies and violations.
 - Get name suggestions for tables, columns, etc.
 
+# Usage
+
+Install it as a dev dependency in your project.
+```shell
+npm i -D dblint
+```
+
+Set the [Environment Variables](#environment-variables) and run the following.
+
+```shell
+npx dblint
+```
+
 # Supported Databases
 * PostgreSQL
 
