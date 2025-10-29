@@ -42,6 +42,7 @@ const printTabularArrayData = (data: any[]) => {
 
 class CLIReporter {
   static report(lint: Lint) {
+    printNEmptyLines(1);
     printHeader('🚀  DBLINT  🚀');
 
     lint.tables.forEach(table => {

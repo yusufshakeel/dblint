@@ -11,6 +11,19 @@ A simple database linter.
 - Check for database naming inconsistencies and violations.
 - Get name suggestions for tables, columns, etc.
 
+# Usage
+
+Install it as a dev dependency in your project.
+```shell
+npm i -D dblint
+```
+
+Set the [Environment Variables](#environment-variables) and run the following.
+
+```shell
+npx dblint
+```
+
 # Supported Databases
 * PostgreSQL
 
@@ -67,7 +80,7 @@ Source the `.env` file.
 source .env
 ```
 
-If you are planning to use Docker then run the following. Else you can use your local database instance.
+If you are planning to use Docker, then run the following. Else you can use your local database instance.
 
 Refer: [docker-compose.yml](./docker-compose.yml)
 
@@ -195,7 +208,7 @@ export DBLINT_CUSTOM_TRIGGER_NAMES='{}'
 # default: '{}'
 export DBLINT_CUSTOM_FOREIGN_KEY_NAMES='{}'
 
-# set the ignore validation errors
+# Set the ignore validation errors
 # syntax: '{"<current_table_or_view_name>": {"<type>,<entity>,<identifier>": "<ignore_reason>"}}'
 # default: '{}'
 export DBLINT_IGNORE_VALIDATION_ERRORS='{}'
@@ -228,6 +241,26 @@ Example:
 }
 ```
 
+# Build your own api, cli, ui, etc.
+
+Install the package as a dependency in your Node.js project.
+
+```shell
+npm i dblint
+```
+
+Import the package and use it.
+
+```ts
+import { dblint } from 'dblint';
+
+async function demo() {
+    const result = await dblint();
+    console.log(result);
+}
+
+demo().catch(console.error);
+```
 
 # License
 
