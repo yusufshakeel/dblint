@@ -10,6 +10,7 @@ A simple database linter.
 - Install it as a dev dependency and run it as a pre-commit hook in your project or in your CI/CD pipeline.
 - Check for database naming inconsistencies and violations.
 - Get name suggestions for tables, columns, etc.
+- You can also use the dblint result and create your own api, cli, ui, etc.
 
 # Usage
 
@@ -32,6 +33,7 @@ npx dblint
 * [Getting Started](#getting-started)
 * [Environment Variables](#environment-variables)
 * [Ignore Validation Errors](#ignore-validation-errors)
+* [Create your own api, cli, ui, etc.](#create-your-own-api-cli-ui-etc)
 * [License](#license)
 
 # Prerequisites
@@ -241,7 +243,7 @@ Example:
 }
 ```
 
-# Build your own api, cli, ui, etc.
+# Create your own api, cli, ui, etc.
 
 Install the package as a dependency in your Node.js project.
 
